@@ -124,8 +124,13 @@ export function WorldTerminal({
       />
 
       {/* Spatially Projected HTML Terminal Display */}
-      {isActive ? (
-        <Html position={[0, 2.2, 0]} center distanceFactor={14}>
+      <Html
+        position={[0, isActive ? 2.2 : 1.8, 0]}
+        center
+        distanceFactor={isActive ? 14 : 22}
+        pointerEvents={isActive ? 'auto' : 'none'}
+      >
+        {isActive ? (
           <div
             onClick={(e) => e.stopPropagation()}
             className="w-80 sm:w-96 bg-[#0B0F19]/95 backdrop-blur-xl border border-[#1E293B] rounded-2xl p-5 shadow-[0_0_30px_rgba(0,0,0,0.8)] text-[#F8FAFC] select-none"
@@ -251,13 +256,11 @@ export function WorldTerminal({
               )}
             </div>
           </div>
-        </Html>
-      ) : (
-        /* Floating Unactivated Label */
-        <Html position={[0, 1.8, 0]} center distanceFactor={22} pointerEvents="none">
+        ) : (
+          /* Floating Unactivated Label */
           <div
             style={{ borderColor: hovered ? artifact.color : '#1E293B' }}
-            className="bg-[#0B0F19]/80 backdrop-blur-md px-2.5 py-1 rounded-full border text-[11px] font-mono text-[#F8FAFC] whitespace-nowrap shadow-md flex items-center space-x-1.5"
+            className="bg-[#0B0F19]/80 backdrop-blur-md px-2.5 py-1 rounded-full border text-[11px] font-mono text-[#F8FAFC] whitespace-nowrap shadow-md flex items-center space-x-1.5 pointer-events-none select-none"
           >
             <span
               style={{ backgroundColor: artifact.color }}
@@ -266,8 +269,8 @@ export function WorldTerminal({
             <span>{artifact.title}</span>
             <span className="text-[9px] text-[#94A3B8] font-mono">[E]</span>
           </div>
-        </Html>
-      )}
+        )}
+      </Html>
     </group>
   );
 }

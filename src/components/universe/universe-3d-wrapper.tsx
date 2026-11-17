@@ -5,7 +5,7 @@
 // Mounts Cinematic First-Person Universe Experience with WebGL Error Boundary
 // ============================================================================
 
-import React, { useState, useSyncExternalStore, Component, type ReactNode } from 'react';
+import React, { useState, Component, type ReactNode } from 'react';
 import type { Project, Skill, Experience, Credential, Story } from '@/types/database';
 import { UniverseCanvas } from './universe-canvas';
 import { UniverseExperience } from './universe-experience';
@@ -49,18 +49,6 @@ class WebGLErrorBoundary extends Component<WebGLErrorBoundaryProps, WebGLErrorBo
   }
 }
 
-function emptySubscribe() {
-  return () => {};
-}
-
-function useIsClient() {
-  return useSyncExternalStore(
-    emptySubscribe,
-    () => true,
-    () => false
-  );
-}
-
 function checkWebGLSupport(): boolean {
   if (typeof window === 'undefined') return true;
   try {
@@ -83,25 +71,12 @@ export function Universe3DWrapper({
   credentials = [],
   stories = [],
 }: Universe3DWrapperProps) {
-  const isClient = useIsClient();
   const [is3DMode, setIs3DMode] = useState(true);
   const [webGlAvailable] = useState(() => checkWebGLSupport());
 
   const handleToggle3D = () => {
     setIs3DMode((prev) => !prev);
   };
-
-  // SSR or initial mounting placeholder
-  if (!isClient) {
-    return (
-      <div className="relative w-full h-[calc(100vh-4rem)] bg-[#0B0F19] flex items-center justify-center">
-        <div className="flex flex-col items-center space-y-3 text-xs font-mono text-[#10B981]">
-          <span className="w-3 h-3 rounded-full bg-[#10B981] animate-ping" />
-          <span>INITIALIZING CELESTIAL COORDINATES...</span>
-        </div>
-      </div>
-    );
-  }
 
   // 2D Planar Map (Active when 3D is toggled off or WebGL is unavailable)
   if (!is3DMode || !webGlAvailable) {

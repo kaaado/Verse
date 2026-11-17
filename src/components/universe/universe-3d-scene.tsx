@@ -5,10 +5,10 @@
 // Multi-layer starfield, volumetric nebulae, asteroid fields & celestial planets
 // ============================================================================
 
-import React, { useRef, useState, useMemo } from 'react';
+import React, { useRef, useState } from 'react';
 import * as THREE from 'three';
 import { useFrame } from '@react-three/fiber';
-import { Stars, Float, Html, Line } from '@react-three/drei';
+import { Stars, Float, Line } from '@react-three/drei';
 import type { Project } from '@/types/database';
 import { WORLDS_CONFIG, type WorldId } from './universe-types';
 
@@ -185,15 +185,6 @@ function CentralNexus({ onClick }: { onClick: () => void }) {
           <meshStandardMaterial color="#8B5CF6" emissive="#8B5CF6" emissiveIntensity={0.7} />
         </mesh>
       </group>
-
-      {/* 3D Floating Nexus Label */}
-      <Html position={[0, -5.2, 0]} center distanceFactor={30} pointerEvents="none">
-        <div className="flex flex-col items-center pointer-events-none select-none">
-          <span className="text-[10px] font-mono tracking-widest text-[#10B981] bg-[#0B0F19]/80 px-2 py-0.5 rounded border border-[#10B981]/30 uppercase whitespace-nowrap">
-            CENTRAL NEXUS (0,0,0)
-          </span>
-        </div>
-      </Html>
     </group>
   );
 }
@@ -237,12 +228,10 @@ function AsteroidBelt() {
 function CelestialPlanet({
   planet,
   isActive,
-  projectCount,
   onSelect,
 }: {
   planet: Sector3DDef;
   isActive: boolean;
-  projectCount: number;
   onSelect: (id: WorldId) => void;
 }) {
   const groupRef = useRef<THREE.Group>(null!);
@@ -319,29 +308,6 @@ function CelestialPlanet({
         intensity={isActive ? 25 : hovered ? 15 : 6}
         distance={25}
       />
-
-      {/* 3D Floating Name & Project Count Tag */}
-      <Html position={[0, -planet.radius - 1.2, 0]} center distanceFactor={30} pointerEvents="none">
-        <div
-          style={{
-            borderColor: planet.color,
-            boxShadow: isActive ? `0 0 16px ${planet.color}88` : undefined,
-          }}
-          className="flex items-center space-x-2 bg-[#0B0F19]/90 backdrop-blur-md px-3 py-1 rounded-full border text-xs font-mono font-bold whitespace-nowrap select-none"
-        >
-          <span
-            style={{ backgroundColor: planet.color }}
-            className="w-2 h-2 rounded-full inline-block"
-          />
-          <span style={{ color: '#F8FAFC' }}>{planet.title}</span>
-          <span
-            style={{ color: planet.color, borderColor: `${planet.color}44` }}
-            className="text-[10px] bg-[#1E293B]/60 px-1.5 py-0.2 rounded border font-mono ml-1"
-          >
-            {projectCount}
-          </span>
-        </div>
-      </Html>
     </group>
   );
 }
@@ -370,28 +336,17 @@ function ConstellationConduits() {
 // Master 3D Space Scene Graph
 // ----------------------------------------------------------------------------
 interface Universe3DSceneProps {
-  projects: Project[];
+  projects?: Project[];
   activeSectorId: string | null;
   onSelectSector: (sectorId: string) => void;
   onResetNexus: () => void;
 }
 
 export function Universe3DScene({
-  projects,
   activeSectorId,
   onSelectSector,
   onResetNexus,
 }: Universe3DSceneProps) {
-  const projectCounts = useMemo(() => {
-    const map: Record<string, number> = {};
-    for (const p of projects) {
-      if (p.sector) {
-        map[p.sector] = (map[p.sector] || 0) + 1;
-      }
-    }
-    return map;
-  }, [projects]);
-
   return (
     <>
       {/* Multi-Layer Starfield */}
@@ -451,7 +406,6 @@ export function Universe3DScene({
           <CelestialPlanet
             planet={planet}
             isActive={activeSectorId === planet.id}
-            projectCount={projectCounts[planet.id] || 0}
             onSelect={onSelectSector}
           />
         </Float>

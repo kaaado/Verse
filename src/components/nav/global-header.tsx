@@ -18,8 +18,8 @@ export function GlobalHeader({ currentPlane, onPlaneChange }: GlobalHeaderProps)
   const [audioConsent, setAudioConsent] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-[#1E293B] bg-[#0B0F19]/80 backdrop-blur-md">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+    <header className="sticky top-0 z-50 w-full border-b border-[#1E293B] bg-[#0B0F19]/80 backdrop-blur-md" suppressHydrationWarning>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between" suppressHydrationWarning>
         
         {/* Brand & Identity */}
         <div className="flex items-center space-x-3">

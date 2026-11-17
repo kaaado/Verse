@@ -7,9 +7,9 @@
 // ============================================================================
 
 import React, { useState } from 'react';
+import dynamic from 'next/dynamic';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { GlobalHeader } from '@/components/nav/global-header';
-import { Universe3DWrapper } from '@/components/universe/universe-3d-wrapper';
 import { ExecutiveHeader } from '@/components/dossier/executive-header';
 import { SkillsMatrix } from '@/components/dossier/skills-matrix';
 import { CredentialsSection } from '@/components/dossier/credentials-section';
@@ -17,6 +17,21 @@ import { ExperienceTimeline } from '@/components/dossier/experience-timeline';
 import { ProjectsGrid } from '@/components/dossier/projects-grid';
 import { ContactSection } from '@/components/dossier/contact-section';
 import type { Project, Experience, Skill, Credential } from '@/types/database';
+
+const Universe3DWrapper = dynamic(
+  () => import('@/components/universe/universe-3d-wrapper').then((mod) => mod.Universe3DWrapper),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="relative w-full h-[calc(100vh-4rem)] bg-[#0B0F19] flex items-center justify-center">
+        <div className="flex flex-col items-center space-y-3 text-xs font-mono text-[#10B981]">
+          <span className="w-3 h-3 rounded-full bg-[#10B981] animate-ping" />
+          <span>INITIALIZING CELESTIAL COORDINATES...</span>
+        </div>
+      </div>
+    ),
+  }
+);
 
 interface HomeContainerProps {
   projects: Project[];
@@ -50,7 +65,7 @@ export function HomeContainer({
   };
 
   return (
-    <div className="flex-1 flex flex-col">
+    <div className="flex-1 flex flex-col" suppressHydrationWarning>
       {/* Global Navigation Header */}
       <GlobalHeader currentPlane={currentPlane} onPlaneChange={handlePlaneChange} />
 

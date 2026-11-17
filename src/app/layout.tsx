@@ -52,9 +52,13 @@ export default function RootLayout({
   return (
     <html
       lang="en"
+      suppressHydrationWarning
       className={`${fontDisplay.variable} ${fontBody.variable} ${fontMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-[#0B0F19] text-[#F8FAFC]">
+      <body
+        suppressHydrationWarning
+        className="min-h-full flex flex-col bg-[#0B0F19] text-[#F8FAFC]"
+      >
         {children}
       </body>
     </html>
