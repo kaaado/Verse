@@ -55,6 +55,46 @@ export default function RootLayout({
       suppressHydrationWarning
       className={`${fontDisplay.variable} ${fontBody.variable} ${fontMono.variable} h-full antialiased`}
     >
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  var isBlocked = function(name) {
+                    return name === 'bis_skin_checked' ||
+                      name === 'bis_register' ||
+                      (typeof name === 'string' && name.indexOf('__processed_') === 0);
+                  };
+
+                  var origSetAttr = Element.prototype.setAttribute;
+                  Element.prototype.setAttribute = function(name, val) {
+                    if (isBlocked(name)) return;
+                    return origSetAttr.apply(this, arguments);
+                  };
+
+                  if (typeof MutationObserver !== 'undefined') {
+                    var observer = new MutationObserver(function(mutations) {
+                      for (var i = 0; i < mutations.length; i++) {
+                        var m = mutations[i];
+                        if (m.type === 'attributes' && isBlocked(m.attributeName)) {
+                          m.target.removeAttribute(m.attributeName);
+                        }
+                      }
+                    });
+                    var target = document.documentElement || document;
+                    observer.observe(target, {
+                      attributes: true,
+                      subtree: true,
+                      attributeFilter: ['bis_skin_checked', 'bis_register']
+                    });
+                  }
+                } catch (e) {}
+              })();
+            `,
+          }}
+        />
+      </head>
       <body
         suppressHydrationWarning
         className="min-h-full flex flex-col bg-[#0B0F19] text-[#F8FAFC]"

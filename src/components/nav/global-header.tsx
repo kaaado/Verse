@@ -22,12 +22,12 @@ export function GlobalHeader({ currentPlane, onPlaneChange }: GlobalHeaderProps)
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between" suppressHydrationWarning>
         
         {/* Brand & Identity */}
-        <div className="flex items-center space-x-3">
+        <div className="flex items-center space-x-3" suppressHydrationWarning>
           <Link href="/" className="flex items-center space-x-2 group">
             <span className="w-8 h-8 rounded-lg bg-[#111827] border border-[#10B981]/40 flex items-center justify-center text-[#10B981] group-hover:border-[#10B981] group-hover:shadow-[0_0_15px_rgba(16,185,129,0.3)] transition-all">
               <IconSparkles className="w-4 h-4" />
             </span>
-            <div>
+            <div suppressHydrationWarning>
               <span className="text-sm font-bold tracking-wider font-display text-[#F8FAFC]">
                 THE YACINEVERSE
               </span>
@@ -39,7 +39,7 @@ export function GlobalHeader({ currentPlane, onPlaneChange }: GlobalHeaderProps)
         </div>
 
         {/* Dual-Plane Switcher */}
-        <div className="flex items-center bg-[#111827] border border-[#1E293B] p-1 rounded-xl shadow-inner">
+        <div className="flex items-center bg-[#111827] border border-[#1E293B] p-1 rounded-xl shadow-inner" suppressHydrationWarning>
           <button
             type="button"
             onClick={() => onPlaneChange('universe')}
@@ -70,7 +70,7 @@ export function GlobalHeader({ currentPlane, onPlaneChange }: GlobalHeaderProps)
         </div>
 
         {/* Action Controls */}
-        <div className="flex items-center space-x-3">
+        <div className="flex items-center space-x-3" suppressHydrationWarning>
           {/* Consent-First Audio Toggle */}
           <button
             type="button"
