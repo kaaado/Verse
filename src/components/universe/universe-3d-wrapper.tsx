@@ -2,24 +2,20 @@
 
 // ============================================================================
 // THE YACINEVERSE — Master Universe Explorer Container
-// Integrates 3D WebGL game-quality scene with Framer Motion HUD & 2D fallback
+// Mounts Cinematic First-Person Universe Experience with WebGL Error Boundary
 // ============================================================================
 
 import React, { useState, useSyncExternalStore, Component, type ReactNode } from 'react';
-import dynamic from 'next/dynamic';
-import type { Project } from '@/types/database';
+import type { Project, Skill, Experience, Credential, Story } from '@/types/database';
 import { UniverseCanvas } from './universe-canvas';
-import { UniverseHUDOverlay } from './universe-hud-overlay';
-import { Universe3DScene } from './universe-3d-scene';
-
-// Dynamically import Canvas from @react-three/fiber with SSR disabled
-const FiberCanvas = dynamic(
-  () => import('@react-three/fiber').then((mod) => mod.Canvas),
-  { ssr: false }
-);
+import { UniverseExperience } from './universe-experience';
 
 interface Universe3DWrapperProps {
   projects: Project[];
+  skills?: Skill[];
+  experiences?: Experience[];
+  credentials?: Credential[];
+  stories?: Story[];
 }
 
 interface WebGLErrorBoundaryProps {
@@ -80,19 +76,16 @@ function checkWebGLSupport(): boolean {
   }
 }
 
-export function Universe3DWrapper({ projects }: Universe3DWrapperProps) {
+export function Universe3DWrapper({
+  projects,
+  skills = [],
+  experiences = [],
+  credentials = [],
+  stories = [],
+}: Universe3DWrapperProps) {
   const isClient = useIsClient();
-  const [activeSectorId, setActiveSectorId] = useState<string | null>(null);
   const [is3DMode, setIs3DMode] = useState(true);
   const [webGlAvailable] = useState(() => checkWebGLSupport());
-
-  const handleSelectSector = (sectorId: string | null) => {
-    setActiveSectorId(sectorId);
-  };
-
-  const handleResetNexus = () => {
-    setActiveSectorId(null);
-  };
 
   const handleToggle3D = () => {
     setIs3DMode((prev) => !prev);
@@ -128,7 +121,7 @@ export function Universe3DWrapper({ projects }: Universe3DWrapperProps) {
               onClick={handleToggle3D}
               className="px-3 py-1.5 rounded-xl text-xs font-mono bg-[#10B981] text-[#0B0F19] font-bold shadow-[0_0_12px_rgba(16,185,129,0.3)] hover:bg-[#10B981]/90 transition-all"
             >
-              Switch to 3D Orbit View →
+              Enter 3D Cinematic Universe →
             </button>
           </div>
         )}
@@ -137,40 +130,18 @@ export function Universe3DWrapper({ projects }: Universe3DWrapperProps) {
     );
   }
 
-  // Real 3D Game-Quality Experience (Default)
+  // Real First-Person 3D Game-Quality Universe Experience (Default)
   return (
-    <div className="relative w-full h-[calc(100vh-4rem)] bg-[#0B0F19] overflow-hidden select-none">
-      <WebGLErrorBoundary fallback={<UniverseCanvas projects={projects} />}>
-        {/* 3D WebGL Canvas */}
-        <FiberCanvas
-          camera={{ position: [0, 10, 48], fov: 45 }}
-          gl={{
-            antialias: true,
-            alpha: false,
-            powerPreference: 'high-performance',
-          }}
-          className="w-full h-full"
-        >
-          <color attach="background" args={['#0B0F19']} />
-          <Universe3DScene
-            projects={projects}
-            activeSectorId={activeSectorId}
-            onSelectSector={handleSelectSector}
-            onResetNexus={handleResetNexus}
-          />
-        </FiberCanvas>
-
-        {/* Framer Motion HUD & Cinematic Interaction Drawer */}
-        <UniverseHUDOverlay
-          projects={projects}
-          activeSectorId={activeSectorId}
-          onSelectSector={handleSelectSector}
-          onResetNexus={handleResetNexus}
-          is3DMode={is3DMode}
-          onToggle3DMode={handleToggle3D}
-          webGlAvailable={webGlAvailable}
-        />
-      </WebGLErrorBoundary>
-    </div>
+    <WebGLErrorBoundary fallback={<UniverseCanvas projects={projects} />}>
+      <UniverseExperience
+        projects={projects}
+        skills={skills}
+        experiences={experiences}
+        credentials={credentials}
+        stories={stories}
+        onToggle2D={handleToggle3D}
+        is2DAvailable={webGlAvailable}
+      />
+    </WebGLErrorBoundary>
   );
 }

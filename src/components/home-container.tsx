@@ -57,7 +57,12 @@ export function HomeContainer({
       {/* Plane View Rendering */}
       {currentPlane === 'universe' ? (
         <main className="flex-1 flex flex-col">
-          <Universe3DWrapper projects={projects} />
+          <Universe3DWrapper
+            projects={projects}
+            skills={skills}
+            experiences={experiences}
+            credentials={credentials}
+          />
         </main>
       ) : (
         <main className="flex-1 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full animate-fade-in">

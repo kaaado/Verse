@@ -2,6 +2,7 @@
 // THE YACINEVERSE — Automated System Verification Suite
 // Tests canonical schema, Zero-Trust guards, rate limiting, and privacy policies
 // Tests synthetic demo dataset isolation and 3D Game-Quality Universe Explorer
+// Tests First-Person Flight/World Controllers, 5 Interior Worlds & Audio Synthesis
 // ============================================================================
 
 import fs from 'fs';
@@ -132,30 +133,89 @@ const dataProviderCode = fs.readFileSync(dataProviderPath, 'utf8');
 assert(dataProviderCode.includes("export type AppDataMode = 'demo' | 'owner' | 'empty'"), 'AppDataMode supports demo, owner, empty');
 assert(dataProviderCode.includes('getActiveDataMode'), 'getActiveDataMode helper exported');
 
-// Test 5: 3D Game-Quality Universe Explorer Architecture
-console.log('\n[5] 3D Game-Quality Universe Explorer Architecture:');
-const scene3DPath = path.join(rootDir, 'src', 'components', 'universe', 'universe-3d-scene.tsx');
-assert(fs.existsSync(scene3DPath), 'universe-3d-scene.tsx exists');
-const scene3DCode = fs.readFileSync(scene3DPath, 'utf8');
-assert(scene3DCode.includes('CentralNexus'), 'Central Nexus 3D hub component implemented');
-assert(scene3DCode.includes('SectorLandmark'), 'SectorLandmark 3D thematic components implemented');
-assert(scene3DCode.includes('CameraRig'), 'CameraRig kinematic smooth damping implemented');
-assert(scene3DCode.includes('SECTORS_3D'), '5 Thematic Sectors defined in 3D coordinate space');
+// Test 5: Procedural Web Audio Synthesis Engine
+console.log('\n[5] Procedural Web Audio Engine:');
+const audioPath = path.join(rootDir, 'src', 'components', 'universe', 'universe-audio.ts');
+assert(fs.existsSync(audioPath), 'universe-audio.ts exists');
+const audioCode = fs.readFileSync(audioPath, 'utf8');
+assert(audioCode.includes('setupCosmicDrone'), 'Ambient cosmic drone synthesis active');
+assert(audioCode.includes('playWarpSound'), 'Warp / Hyperspace acceleration sound active');
+assert(audioCode.includes('playInteractionChime'), 'Harmonic interaction chime active');
+assert(audioCode.includes('playAtmosphericEntry'), 'Atmospheric entry sound active');
 
-const hudOverlayPath = path.join(rootDir, 'src', 'components', 'universe', 'universe-hud-overlay.tsx');
-assert(fs.existsSync(hudOverlayPath), 'universe-hud-overlay.tsx exists');
-const hudOverlayCode = fs.readFileSync(hudOverlayPath, 'utf8');
-assert(hudOverlayCode.includes('framer-motion'), 'Framer Motion powering cinematic HUD & drawer');
-assert(hudOverlayCode.includes('AnimatePresence'), 'AnimatePresence sliding detail drawer active');
+// Test 6: First-Person Flight & Ground Exploration Controllers
+console.log('\n[6] First-Person Controllers:');
+const flightCtrlPath = path.join(rootDir, 'src', 'components', 'universe', 'controllers', 'flight-controls.tsx');
+assert(fs.existsSync(flightCtrlPath), 'flight-controls.tsx exists');
+const flightCtrlCode = fs.readFileSync(flightCtrlPath, 'utf8');
+assert(flightCtrlCode.includes('boost'), 'Hyper-thruster boost kinematics implemented');
+assert(flightCtrlCode.includes('onApproachWorld'), 'World proximity detection active');
 
-const wrapper3DPath = path.join(rootDir, 'src', 'components', 'universe', 'universe-3d-wrapper.tsx');
-assert(fs.existsSync(wrapper3DPath), 'universe-3d-wrapper.tsx master container exists');
-const wrapper3DCode = fs.readFileSync(wrapper3DPath, 'utf8');
-assert(wrapper3DCode.includes('FiberCanvas'), 'React Three Fiber dynamic Canvas loading');
-assert(wrapper3DCode.includes('WebGLErrorBoundary'), 'Graceful WebGL Error Boundary with 2D fallback');
+const worldCtrlPath = path.join(rootDir, 'src', 'components', 'universe', 'controllers', 'world-controls.tsx');
+assert(fs.existsSync(worldCtrlPath), 'world-controls.tsx exists');
+const worldCtrlCode = fs.readFileSync(worldCtrlPath, 'utf8');
+assert(worldCtrlCode.includes('onNearArtifact'), 'Artifact proximity detection active');
+assert(worldCtrlCode.includes('onReturnToSpace'), 'Gateway exit detection active');
 
-// Test 6: Creator Studio Onboarding & Telemetry Cleanup
-console.log('\n[6] Creator Studio Onboarding & Telemetry Test:');
+const joystickPath = path.join(rootDir, 'src', 'components', 'universe', 'controllers', 'virtual-joystick.tsx');
+assert(fs.existsSync(joystickPath), 'virtual-joystick.tsx mobile controls exist');
+
+// Test 7: Cinematics & Warp FX
+console.log('\n[7] Cinematics & Warp FX:');
+const introPath = path.join(rootDir, 'src', 'components', 'universe', 'cinematics', 'awakening-intro.tsx');
+assert(fs.existsSync(introPath), 'awakening-intro.tsx exists');
+const introCode = fs.readFileSync(introPath, 'utf8');
+assert(introCode.includes('ENTER THE UNIVERSE'), 'Enter Universe prompt present');
+assert(introCode.includes('Skip Introduction'), 'Skip intro option present');
+
+const warpPath = path.join(rootDir, 'src', 'components', 'universe', 'cinematics', 'warp-tunnel.tsx');
+assert(fs.existsSync(warpPath), 'warp-tunnel.tsx exists');
+const warpCode = fs.readFileSync(warpPath, 'utf8');
+assert(warpCode.includes('STATIC_STAR_POSITIONS'), 'Deterministic star positions active');
+
+// Test 8: 5 Interior World Environments
+console.log('\n[8] 5 Interior World Environments:');
+const worldFiles = [
+  'core-systems-world.tsx',
+  'ai-intelligence-world.tsx',
+  'engineering-world.tsx',
+  'creations-world.tsx',
+  'origins-world.tsx',
+];
+
+for (const wf of worldFiles) {
+  const p = path.join(rootDir, 'src', 'components', 'universe', 'worlds', wf);
+  assert(fs.existsSync(p), `World environment exists: ${wf}`);
+  const code = fs.readFileSync(p, 'utf8');
+  assert(code.includes('WorldTerminal'), `${wf} contains interactive WorldTerminal artifacts`);
+  assert(code.includes('Space Orbit Gateway'), `${wf} contains Space Orbit Gateway beacon`);
+}
+
+// Test 9: Spatially Integrated In-World Artifacts & Terminal
+console.log('\n[9] Spatial In-World Terminal:');
+const terminalPath = path.join(rootDir, 'src', 'components', 'universe', 'world-terminal.tsx');
+assert(fs.existsSync(terminalPath), 'world-terminal.tsx exists');
+const terminalCode = fs.readFileSync(terminalPath, 'utf8');
+assert(terminalCode.includes('Html'), 'Spatially projected HTML terminal active');
+assert(terminalCode.includes('octahedronGeometry'), '3D holographic geometry present');
+
+// Test 10: Master Experience Orchestrator & HUD
+console.log('\n[10] Master Experience Orchestrator & HUD:');
+const expPath = path.join(rootDir, 'src', 'components', 'universe', 'universe-experience.tsx');
+assert(fs.existsSync(expPath), 'universe-experience.tsx exists');
+const expCode = fs.readFileSync(expPath, 'utf8');
+assert(expCode.includes('SPACE_FLIGHT'), 'Space flight state managed');
+assert(expCode.includes('WORLD_EXPLORATION'), 'World exploration state managed');
+assert(expCode.includes('WARP_TRANSITION'), 'Warp transition state managed');
+
+const fpHudPath = path.join(rootDir, 'src', 'components', 'universe', 'first-person-hud.tsx');
+assert(fs.existsSync(fpHudPath), 'first-person-hud.tsx exists');
+const fpHudCode = fs.readFileSync(fpHudPath, 'utf8');
+assert(fpHudCode.includes('Reticle'), 'Center targeting reticle rendered');
+assert(fpHudCode.includes('actionPrompt'), 'Dynamic context action prompt active');
+
+// Test 11: Creator Studio Onboarding & Telemetry Cleanup
+console.log('\n[11] Creator Studio Onboarding & Telemetry Test:');
 const checklistPath = path.join(rootDir, 'src', 'components', 'studio', 'content-checklist.tsx');
 assert(fs.existsSync(checklistPath), 'src/components/studio/content-checklist.tsx exists');
 const studioPath = path.join(rootDir, 'src', 'app', 'studio', 'page.tsx');
@@ -165,8 +225,8 @@ assert(!studioCode.includes('14.2 MB'), 'Fabricated 14.2 MB disk metric removed'
 assert(!studioCode.includes('48.5 MB'), 'Fabricated 48.5 MB egress metric removed');
 assert(studioCode.includes('Not Connected') || studioCode.includes('Requires Management API'), 'Honest telemetry status displayed');
 
-// Test 7: Rate Limiting & Proxy Routing
-console.log('\n[7] Rate Limiting & Routing Convention:');
+// Test 12: Rate Limiting & Proxy Routing
+console.log('\n[12] Rate Limiting & Routing Convention:');
 const rateLimitPath = path.join(rootDir, 'src', 'lib', 'rate-limit.ts');
 const rateLimitCode = fs.readFileSync(rateLimitPath, 'utf8');
 assert(rateLimitCode.includes('checkRateLimit'), 'checkRateLimit function defined');
