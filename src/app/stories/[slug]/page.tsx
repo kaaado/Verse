@@ -63,6 +63,15 @@ export default async function StoryDetailPage({ params }: StoryPageProps) {
       </header>
 
       <main className="flex-1 max-w-3xl mx-auto px-4 sm:px-6 py-12 w-full">
+        {story.is_demo && (
+          <div className="mb-6 p-4 rounded-xl bg-[#F59E0B]/10 border border-[#F59E0B]/30 flex items-center space-x-3 text-xs text-[#F59E0B]">
+            <span className="font-mono uppercase font-bold shrink-0">[DEMO ARTICLE]</span>
+            <span className="text-[#FCD34D]">
+              This article is a demonstration placeholder template. Real engineering articles and chronicles will be authored by the owner.
+            </span>
+          </div>
+        )}
+
         <div className="flex items-center space-x-3 mb-4 text-xs font-mono text-[#10B981]">
           <span className="flex items-center space-x-1">
             <IconSparkles className="w-3.5 h-3.5" />

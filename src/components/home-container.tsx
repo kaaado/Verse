@@ -3,12 +3,13 @@
 // ============================================================================
 // THE YACINEVERSE — Home Container Component
 // Synchronizes Dual-Plane view with browser URL state (?view=universe | dossier)
+// Integrates 3D Game-Quality Universe Explorer with Executive Dossier
 // ============================================================================
 
 import React, { useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { GlobalHeader } from '@/components/nav/global-header';
-import { UniverseCanvas } from '@/components/universe/universe-canvas';
+import { Universe3DWrapper } from '@/components/universe/universe-3d-wrapper';
 import { ExecutiveHeader } from '@/components/dossier/executive-header';
 import { SkillsMatrix } from '@/components/dossier/skills-matrix';
 import { CredentialsSection } from '@/components/dossier/credentials-section';
@@ -22,6 +23,7 @@ interface HomeContainerProps {
   experiences: Experience[];
   skills: Skill[];
   credentials: Credential[];
+  isDemo?: boolean;
 }
 
 export function HomeContainer({
@@ -29,6 +31,7 @@ export function HomeContainer({
   experiences,
   skills,
   credentials,
+  isDemo = true,
 }: HomeContainerProps) {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -54,11 +57,11 @@ export function HomeContainer({
       {/* Plane View Rendering */}
       {currentPlane === 'universe' ? (
         <main className="flex-1 flex flex-col">
-          <UniverseCanvas projects={projects} />
+          <Universe3DWrapper projects={projects} />
         </main>
       ) : (
         <main className="flex-1 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full animate-fade-in">
-          <ExecutiveHeader />
+          <ExecutiveHeader isDemo={isDemo} />
           <SkillsMatrix
             skills={skills}
             selectedSkill={selectedSkill}
@@ -78,7 +81,7 @@ export function HomeContainer({
       <footer className="border-t border-[#1E293B] py-6 text-center text-xs text-[#94A3B8] font-mono no-print">
         <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
           <span>THE YACINEVERSE • A journey through the mind of a builder</span>
-          <span>Engineered with Next.js App Router, TypeScript & Supabase</span>
+          <span>Engineered with Next.js App Router, TypeScript, Three.js & Supabase</span>
         </div>
       </footer>
     </div>

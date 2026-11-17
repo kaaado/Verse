@@ -70,6 +70,16 @@ export default async function ProjectDetailPage({ params }: ProjectPageProps) {
 
       {/* Main Case Study Content */}
       <main className="flex-1 max-w-4xl mx-auto px-4 sm:px-6 py-12 w-full">
+        {/* Demo Template Notice */}
+        {project.is_demo && (
+          <div className="mb-6 p-4 rounded-xl bg-[#F59E0B]/10 border border-[#F59E0B]/30 flex items-center space-x-3 text-xs text-[#F59E0B]">
+            <span className="font-mono uppercase font-bold shrink-0">[DEMO CASE STUDY]</span>
+            <span className="text-[#FCD34D]">
+              This is a synthetic demonstration template illustrating project architecture, topology breakdowns, and metric visualizations. Real case studies will be populated by the owner.
+            </span>
+          </div>
+        )}
+
         {/* Sector & Flagship Banner */}
         <div className="flex items-center space-x-3 mb-4">
           <span className="text-[10px] uppercase font-mono tracking-wider px-2.5 py-0.5 rounded bg-[#1E293B] text-[#06B6D4] border border-[#06B6D4]/30">

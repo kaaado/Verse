@@ -25,11 +25,11 @@ interface SectorInfo {
 }
 
 const SECTORS: SectorInfo[] = [
-  { id: 'core_systems', title: 'Core Systems & Architecture', x: -280, y: -120, color: '#10B981', summary: 'PassiLuce high-concurrency Swoole backbones & hospital RBAC portals.' },
-  { id: 'ai_intelligence', title: 'AI & Machine Intelligence', x: 280, y: -140, color: '#06B6D4', summary: 'Computer Vision neural thesis & autonomous agent workflows.' },
-  { id: 'engineering', title: 'Engineering & Field Systems', x: 200, y: 180, color: '#F59E0B', summary: 'Agrovia offline-first orchard sync & IoT telemetry.' },
-  { id: 'creations', title: 'Creations & Utilities', x: -220, y: 160, color: '#8B5CF6', summary: 'Mukhayyami summer camp logistics & interactive sandboxes.' },
-  { id: 'origins', title: 'Origins & Evolution', x: 0, y: -260, color: '#EC4899', summary: 'Master of Science academic foundation & University of Mascara roots.' },
+  { id: 'core_systems', title: 'Core Systems & Architecture', x: -280, y: -120, color: '#10B981', summary: 'Distributed backends, high-concurrency microservices & zero-trust security.' },
+  { id: 'ai_intelligence', title: 'AI & Machine Intelligence', x: 280, y: -140, color: '#06B6D4', summary: 'Neural network inference, computer vision & autonomous multi-agent pipelines.' },
+  { id: 'engineering', title: 'Engineering & Field Systems', x: 200, y: 180, color: '#F59E0B', summary: 'Offline-first sync protocols, IoT edge telemetry & resilient field applications.' },
+  { id: 'creations', title: 'Creations & Utilities', x: -220, y: 160, color: '#8B5CF6', summary: 'Interactive developer tools, creative sandboxes & open-source utilities.' },
+  { id: 'origins', title: 'Origins & Evolution', x: 0, y: -260, color: '#EC4899', summary: 'Foundational research, academic achievements & engineering philosophy.' },
 ];
 
 export function UniverseCanvas({ projects }: UniverseCanvasProps) {

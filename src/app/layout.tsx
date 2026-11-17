@@ -23,7 +23,7 @@ const fontMono = JetBrains_Mono({
 export const metadata: Metadata = {
   title: "THE YACINEVERSE — A journey through the mind of a builder",
   description: "Dynamic personal platform, cosmic architecture portfolio, and executive professional dossier of Yacine Abdelsoltane Kermame (Kaaado). Systems engineer, AI builder, and software architect.",
-  keywords: ["Yacine Kermame", "Kaaado", "Software Architect", "Next.js", "Laravel", "AI Systems", "PassiLuce", "Algeria"],
+  keywords: ["Yacine Kermame", "Kaaado", "Software Architect", "Next.js", "TypeScript", "AI Systems", "Engineering Portfolio"],
   authors: [{ name: "Yacine Abdelsoltane Kermame" }],
   openGraph: {
     title: "THE YACINEVERSE — A journey through the mind of a builder",

@@ -43,6 +43,7 @@ export interface Skill {
   display_order: number;
   is_visible: boolean;
   icon_slug?: string | null;
+  is_demo?: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -61,6 +62,7 @@ export interface Experience {
   highlights: string[];
   status: ContentStatus;
   display_order: number;
+  is_demo?: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -77,6 +79,7 @@ export interface Credential {
   certificate_media_id?: string | null;
   status: ContentStatus;
   display_order: number;
+  is_demo?: boolean;
   created_at: string;
   updated_at: string;
   certificate_media?: MediaAsset | null;
@@ -100,6 +103,7 @@ export interface Project {
   architecture_overview?: string | null;
   impact_metrics: ImpactMetric[];
   display_order: number;
+  is_demo?: boolean;
   published_at?: string | null;
   created_at: string;
   updated_at: string;
@@ -117,6 +121,7 @@ export interface Story {
   cover_image_id?: string | null;
   tags: string[];
   status: ContentStatus;
+  is_demo?: boolean;
   published_at?: string | null;
   created_at: string;
   updated_at: string;
@@ -131,6 +136,7 @@ export interface Post {
   content_mdx: string;
   media_id?: string | null;
   status: ContentStatus;
+  is_demo?: boolean;
   published_at?: string | null;
   created_at: string;
   updated_at: string;
@@ -145,6 +151,7 @@ export interface Milestone {
   linked_experience_id?: string | null;
   linked_project_id?: string | null;
   status: ContentStatus;
+  is_demo?: boolean;
   created_at: string;
   updated_at: string;
 }

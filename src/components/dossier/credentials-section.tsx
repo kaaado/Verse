@@ -111,7 +111,7 @@ export function CredentialsSection({ credentials }: CredentialsSectionProps) {
                 <p><strong className="text-[#F8FAFC]">Registry Verification ID:</strong> <code className="bg-[#1E293B] px-1 py-0.5 rounded text-[#10B981]">{activeCredential.credential_id_number}</code></p>
               )}
               <p className="mt-4 pt-4 border-t border-[#1E293B] text-[11px] italic text-[#64748B]">
-                Physical degree transcripts and official conferment records verified under Master of Science curriculum requirements at the University of Mascara and NVIDIA DLI.
+                Official conferment records and verified institutional credentials.
               </p>
             </div>
 

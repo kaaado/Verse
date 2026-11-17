@@ -6,9 +6,13 @@
 // ============================================================================
 
 import React, { useState } from 'react';
-import { IconDownload, IconMail, IconCheck, IconExternalLink } from '@/components/icons';
+import { IconDownload, IconMail, IconCheck, IconExternalLink, IconSparkles } from '@/components/icons';
 
-export function ExecutiveHeader() {
+interface ExecutiveHeaderProps {
+  isDemo?: boolean;
+}
+
+export function ExecutiveHeader({ isDemo = true }: ExecutiveHeaderProps) {
   const [copied, setCopied] = useState(false);
   const email = 'kaaado.dev@gmail.com';
 
@@ -19,7 +23,25 @@ export function ExecutiveHeader() {
   };
 
   return (
-    <section className="border-b border-[#1E293B] pb-10 mb-10">
+    <section className="border-b border-[#1E293B] pb-10 mb-10 space-y-6">
+      {/* Demo Mode Notice Banner */}
+      {isDemo && (
+        <div className="bg-[#F59E0B]/10 border border-[#F59E0B]/30 rounded-xl p-4 flex items-start space-x-3 text-xs text-[#F59E0B]">
+          <IconSparkles className="w-5 h-5 shrink-0 text-[#F59E0B] mt-0.5" />
+          <div className="space-y-1">
+            <div className="font-bold font-mono uppercase tracking-wider flex items-center space-x-2">
+              <span>Demonstration Dataset Active</span>
+              <span className="text-[10px] bg-[#F59E0B]/20 px-2 py-0.5 rounded border border-[#F59E0B]/40">
+                Awaiting Owner Input
+              </span>
+            </div>
+            <p className="text-[#FCD34D] leading-relaxed">
+              This portfolio is currently running in demonstration mode with clearly labeled synthetic case studies and skills. All actual career history, verified credentials, and flagship project deep-dives will be entered directly by the owner via the Creator Studio.
+            </p>
+          </div>
+        </div>
+      )}
+
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
           <div className="flex items-center space-x-3 mb-2">
@@ -36,7 +58,7 @@ export function ExecutiveHeader() {
             Principal Software Architect & Full-Stack Systems Engineer
           </p>
           <p className="text-sm text-[#94A3B8] max-w-2xl mt-3 leading-relaxed">
-            M.Sc. Computer Science • 5+ years architecting high-concurrency distributed platforms (PassiLuce), offline-first IoT field ERPs (Agrovia), and mission-critical hospital RBAC digitalization. Proven production impact under real-world infrastructure and payment constraints.
+            Systems builder specializing in distributed backends, AI orchestration pipelines, resilient offline-first architectures, and interactive 3D web experiences. Proven engineering craftsmanship under complex constraints.
           </p>
         </div>
 
