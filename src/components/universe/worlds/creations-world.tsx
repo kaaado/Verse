@@ -2,7 +2,7 @@
 
 // ============================================================================
 // THE YACINEVERSE — World 4: Creations & Utilities
-// Crystalline archipelago, levitating refractive prisms, creative sandboxes
+// Enterprise Crystalline Archipelago, Levitating Refractive Prisms, Creative Arenas
 // ============================================================================
 
 import React, { useMemo, useRef } from 'react';
@@ -11,6 +11,7 @@ import { useFrame } from '@react-three/fiber';
 import { WorldTerminal } from '../world-terminal';
 import type { InteractiveArtifact } from '../universe-types';
 import { getWorldArtifacts } from '../universe-artifacts';
+import { DESIGN_TOKENS } from '@/lib/design-tokens';
 
 interface CreationsWorldProps {
   activeArtifact: InteractiveArtifact | null;
@@ -24,6 +25,9 @@ export function CreationsWorld({
   onCloseArtifact,
 }: CreationsWorldProps) {
   const crystalsRef = useRef<THREE.Group>(null!);
+  const gatewayRingRef = useRef<THREE.Group>(null!);
+
+  const tokens = DESIGN_TOKENS.worlds.creations;
 
   const artifacts = useMemo(() => {
     return getWorldArtifacts('creations', {
@@ -44,45 +48,70 @@ export function CreationsWorld({
         child.position.y = 8 + Math.sin(t * 1.8 + i) * 1.2;
       });
     }
+    if (gatewayRingRef.current) {
+      gatewayRingRef.current.rotation.y = t * 0.8;
+      gatewayRingRef.current.rotation.x = Math.sin(t * 0.4) * 0.15;
+    }
   });
 
   return (
     <group>
       {/* Environmental Fog & Atmospheric Purple Lighting */}
-      <fog attach="fog" args={['#0e0717', 8, 48]} />
-      <ambientLight intensity={0.4} color="#8B5CF6" />
-      <directionalLight position={[0, 25, 10]} intensity={1.2} color="#F5F3FF" />
+      <fog attach="fog" args={[tokens.fog, 6, 52]} />
+      <ambientLight intensity={tokens.ambientLightIntensity} color={tokens.primary} />
+      <directionalLight position={[0, 24, 10]} intensity={tokens.directionalLightIntensity} color="#F5F3FF" />
 
       {/* Floating Crystalline Platform Floor */}
-      <mesh position={[0, -0.2, 0]} receiveShadow>
-        <cylinderGeometry args={[26, 28, 0.4, 32]} />
+      <mesh position={[0, -0.25, 0]} receiveShadow>
+        <cylinderGeometry args={[28, 30, 0.5, 48]} />
         <meshStandardMaterial
-          color="#120A1E"
-          roughness={0.2}
-          metalness={0.8}
+          color="#0F061C"
+          roughness={tokens.surfaceRoughness}
+          metalness={tokens.surfaceMetalness}
         />
       </mesh>
 
-      {/* Violet Rune Rings on Platform */}
-      {[7, 14, 21].map((radius, idx) => (
-        <mesh key={idx} position={[0, 0.05, 0]} rotation={[Math.PI / 2, 0, 0]}>
-          <ringGeometry args={[radius - 0.08, radius, 48]} />
-          <meshBasicMaterial color="#8B5CF6" transparent opacity={0.4} />
+      {/* Concentric Telemetry Rings on Floor */}
+      {[7, 14, 21, 27].map((radius, idx) => (
+        <mesh key={idx} position={[0, 0.02, 0]} rotation={[Math.PI / 2, 0, 0]}>
+          <ringGeometry args={[radius - 0.06, radius, 64]} />
+          <meshBasicMaterial color={tokens.primary} transparent opacity={0.3} />
         </mesh>
       ))}
 
+      {/* Elevated West Pedestal: Cosmic Sandbox Engine */}
+      <group position={[-6, 0.2, -1]}>
+        <mesh receiveShadow>
+          <cylinderGeometry args={[3.6, 4.0, 0.4, 24]} />
+          <meshStandardMaterial color="#210F38" roughness={0.2} metalness={0.88} />
+        </mesh>
+        <mesh position={[0, 0.21, 0]} rotation={[Math.PI / 2, 0, 0]}>
+          <ringGeometry args={[3.4, 3.55, 32]} />
+          <meshBasicMaterial color={tokens.accent} transparent opacity={0.7} />
+        </mesh>
+      </group>
+
+      {/* Elevated East Pedestal: Devtools Ergonomics Suite */}
+      <group position={[6, 0.2, -1]}>
+        <mesh receiveShadow>
+          <cylinderGeometry args={[3.6, 4.0, 0.4, 24]} />
+          <meshStandardMaterial color="#210F38" roughness={0.2} metalness={0.88} />
+        </mesh>
+        <mesh position={[0, 0.21, 0]} rotation={[Math.PI / 2, 0, 0]}>
+          <ringGeometry args={[3.4, 3.55, 32]} />
+          <meshBasicMaterial color={tokens.accent} transparent opacity={0.7} />
+        </mesh>
+      </group>
+
       {/* Floating Geometric Crystals in Background */}
       <group ref={crystalsRef}>
-        {[-16, -8, 0, 8, 16].map((x, idx) => (
-          <mesh
-            key={idx}
-            position={[x, 8, -15]}
-          >
-            <octahedronGeometry args={[2.0 + (idx % 2) * 0.6, 0]} />
+        {[-18, -10, 0, 10, 18].map((x, idx) => (
+          <mesh key={idx} position={[x, 8, -16]}>
+            <octahedronGeometry args={[2.2 + (idx % 2) * 0.6, 0]} />
             <meshStandardMaterial
-              color="#8B5CF6"
-              emissive="#7C3AED"
-              emissiveIntensity={1.2}
+              color={tokens.primary}
+              emissive={tokens.emissive}
+              emissiveIntensity={1.4}
               roughness={0.1}
               metalness={0.9}
             />
@@ -90,34 +119,54 @@ export function CreationsWorld({
         ))}
       </group>
 
-      {/* Floating Prismatic Sandbox Pedestals */}
-      {[-12, 12].map((x, idx) => (
-        <group key={idx} position={[x, 1, 0]}>
-          <mesh>
-            <cylinderGeometry args={[1.5, 1.8, 2, 8]} />
-            <meshStandardMaterial color="#1E1135" roughness={0.3} metalness={0.7} />
-          </mesh>
-          <mesh position={[0, 1.1, 0]}>
-            <dodecahedronGeometry args={[0.8, 0]} />
-            <meshStandardMaterial color="#A78BFA" emissive="#8B5CF6" emissiveIntensity={1.4} />
-          </mesh>
-          <pointLight position={[0, 1.5, 0]} color="#8B5CF6" intensity={10} distance={8} />
-        </group>
-      ))}
-
-      {/* Space Orbit Gateway Light Column */}
+      {/* Space Orbit Gateway Beacon with Gyro Rings */}
       <group position={[0, 0, 14]}>
-        <mesh position={[0, 6, 0]}>
-          <cylinderGeometry args={[1.8, 1.8, 12, 16, 1, true]} />
+        <mesh position={[0, 0.1, 0]}>
+          <cylinderGeometry args={[2.8, 3.2, 0.2, 32]} />
+          <meshStandardMaterial color="#1E0D33" roughness={0.2} metalness={0.9} />
+        </mesh>
+
+        <mesh position={[0, 7, 0]}>
+          <cylinderGeometry args={[2.2, 2.2, 14, 24, 1, true]} />
           <meshBasicMaterial
-            color="#8B5CF6"
+            color={tokens.primary}
             transparent
-            opacity={0.15}
+            opacity={0.2}
             side={THREE.DoubleSide}
           />
         </mesh>
-        <pointLight color="#8B5CF6" intensity={15} distance={15} />
+
+        <group ref={gatewayRingRef} position={[0, 2.5, 0]}>
+          <mesh rotation={[Math.PI / 4, 0, 0]}>
+            <torusGeometry args={[2.6, 0.06, 16, 48]} />
+            <meshBasicMaterial color={tokens.accent} />
+          </mesh>
+          <mesh rotation={[-Math.PI / 4, 0, 0]}>
+            <torusGeometry args={[2.9, 0.05, 16, 48]} />
+            <meshBasicMaterial color={tokens.secondary} />
+          </mesh>
+        </group>
+
+        <pointLight color={tokens.primary} intensity={25} distance={20} />
       </group>
+
+      {/* Safety Perimeter Boundary Pylons */}
+      {[0, Math.PI / 4, Math.PI / 2, (3 * Math.PI) / 4, Math.PI, (5 * Math.PI) / 4, (3 * Math.PI) / 2, (7 * Math.PI) / 4].map((angle, idx) => {
+        const px = Math.cos(angle) * 27.5;
+        const pz = Math.sin(angle) * 27.5;
+        return (
+          <group key={idx} position={[px, 1.2, pz]}>
+            <mesh>
+              <cylinderGeometry args={[0.2, 0.25, 2.4, 12]} />
+              <meshStandardMaterial color="#160829" metalness={0.9} roughness={0.2} />
+            </mesh>
+            <mesh position={[0, 1.3, 0]}>
+              <sphereGeometry args={[0.15, 12, 12]} />
+              <meshBasicMaterial color={tokens.primary} />
+            </mesh>
+          </group>
+        );
+      })}
 
       {/* Interactive Spatially Placed Artifacts */}
       {artifacts.map((art) => (

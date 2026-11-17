@@ -258,6 +258,38 @@ assert(audioCode.includes('effectsGain'), 'Effects gain audio bus implemented');
 assert(audioCode.includes('sessionStorage'), 'Audio settings persisted in sessionStorage');
 assert(fpHudCode.includes('Audio Engine Mixer'), 'Authoritative Audio Mixer panel present in HUD');
 
+// Test 14: Enterprise Design Tokens & Visual Architecture Suite
+console.log('\n[14] Enterprise Design Tokens & Visual Architecture Suite:');
+const tokensPath = path.join(rootDir, 'src', 'lib', 'design-tokens.ts');
+assert(fs.existsSync(tokensPath), 'src/lib/design-tokens.ts exists');
+const tokensCode = fs.readFileSync(tokensPath, 'utf8');
+assert(tokensCode.includes('DESIGN_TOKENS'), 'DESIGN_TOKENS constant exported');
+assert(tokensCode.includes('core_systems'), 'Tokens define core_systems palette');
+assert(tokensCode.includes('ai_intelligence'), 'Tokens define ai_intelligence palette');
+assert(tokensCode.includes('engineering'), 'Tokens define engineering palette');
+assert(tokensCode.includes('creations'), 'Tokens define creations palette');
+assert(tokensCode.includes('origins'), 'Tokens define origins palette');
+
+const archVizPath = path.join(rootDir, 'src', 'components', 'visualizations', 'ArchitectureVisualization.tsx');
+assert(fs.existsSync(archVizPath), 'ArchitectureVisualization.tsx exists');
+const archVizCode = fs.readFileSync(archVizPath, 'utf8');
+assert(archVizCode.includes('ArchitectureVisualization'), 'ArchitectureVisualization component exported');
+
+const techStackPath = path.join(rootDir, 'src', 'components', 'visualizations', 'TechnologyStackVisualization.tsx');
+assert(fs.existsSync(techStackPath), 'TechnologyStackVisualization.tsx exists');
+
+const dataFlowPath = path.join(rootDir, 'src', 'components', 'visualizations', 'DataFlowVisualization.tsx');
+assert(fs.existsSync(dataFlowPath), 'DataFlowVisualization.tsx exists');
+
+const skillConstPath = path.join(rootDir, 'src', 'components', 'visualizations', 'SkillConstellation.tsx');
+assert(fs.existsSync(skillConstPath), 'SkillConstellation.tsx exists');
+
+const projectPagePath = path.join(rootDir, 'src', 'app', 'projects', '[slug]', 'page.tsx');
+const projectPageCode = fs.readFileSync(projectPagePath, 'utf8');
+assert(projectPageCode.includes('ArchitectureVisualization'), 'Project detail page embeds ArchitectureVisualization');
+assert(projectPageCode.includes('DataFlowVisualization'), 'Project detail page embeds DataFlowVisualization');
+assert(projectPageCode.includes('TechnologyStackVisualization'), 'Project detail page embeds TechnologyStackVisualization');
+
 console.log(`\n=== VERIFICATION SUMMARY: ${passedTests}/${totalTests} TESTS PASSED ===\n`);
 
 if (passedTests === totalTests) {

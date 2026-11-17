@@ -139,6 +139,20 @@ export function AtmosphericEntry({ targetWorld, onArrival }: AtmosphericEntryPro
         ))}
       </group>
 
+      {/* Cloud Deck Penetration Vapor Layer */}
+      {isDescendingToWorld && (
+        <mesh position={[0, -5, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+          <planeGeometry args={[120, 120]} />
+          <meshBasicMaterial
+            color={themeColor}
+            transparent
+            opacity={0.18}
+            blending={THREE.AdditiveBlending}
+            side={THREE.DoubleSide}
+          />
+        </mesh>
+      )}
+
       {/* Atmospheric Entry Core Glow Light */}
       <pointLight color={themeColor} intensity={30} distance={50} />
     </group>

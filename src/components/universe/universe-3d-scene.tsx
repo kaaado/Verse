@@ -1,8 +1,8 @@
 'use client';
 
 // ============================================================================
-// THE YACINEVERSE — Upgraded Enormous Layered Space Environment & Central Nexus
-// Multi-layer starfield, volumetric nebulae, asteroid fields & celestial planets
+// THE YACINEVERSE — Enterprise Grand Space Environment & Central Nexus Landmark
+// Layered Starfields, Volumetric Nebulae, Orbital Asteroids, Kinetic Megastructure & 5 Distinct Planetary Silhouettes
 // ============================================================================
 
 import React, { useRef, useState } from 'react';
@@ -11,6 +11,7 @@ import { useFrame } from '@react-three/fiber';
 import { Stars, Float, Line } from '@react-three/drei';
 import type { Project } from '@/types/database';
 import { WORLDS_CONFIG, type WorldId } from './universe-types';
+import { DESIGN_TOKENS } from '@/lib/design-tokens';
 
 export interface Sector3DDef {
   id: WorldId;
@@ -30,8 +31,8 @@ export const PLANETS_3D: Sector3DDef[] = [
     tagline: WORLDS_CONFIG.core_systems.subtitle,
     description: WORLDS_CONFIG.core_systems.atmosphereDescription,
     position: WORLDS_CONFIG.core_systems.spaceCoordinates,
-    color: WORLDS_CONFIG.core_systems.themeColor,
-    emissive: WORLDS_CONFIG.core_systems.emissiveColor,
+    color: DESIGN_TOKENS.worlds.core_systems.primary,
+    emissive: DESIGN_TOKENS.worlds.core_systems.emissive,
     radius: 3.4,
   },
   {
@@ -40,8 +41,8 @@ export const PLANETS_3D: Sector3DDef[] = [
     tagline: WORLDS_CONFIG.ai_intelligence.subtitle,
     description: WORLDS_CONFIG.ai_intelligence.atmosphereDescription,
     position: WORLDS_CONFIG.ai_intelligence.spaceCoordinates,
-    color: WORLDS_CONFIG.ai_intelligence.themeColor,
-    emissive: WORLDS_CONFIG.ai_intelligence.emissiveColor,
+    color: DESIGN_TOKENS.worlds.ai_intelligence.primary,
+    emissive: DESIGN_TOKENS.worlds.ai_intelligence.emissive,
     radius: 3.2,
   },
   {
@@ -50,8 +51,8 @@ export const PLANETS_3D: Sector3DDef[] = [
     tagline: WORLDS_CONFIG.engineering.subtitle,
     description: WORLDS_CONFIG.engineering.atmosphereDescription,
     position: WORLDS_CONFIG.engineering.spaceCoordinates,
-    color: WORLDS_CONFIG.engineering.themeColor,
-    emissive: WORLDS_CONFIG.engineering.emissiveColor,
+    color: DESIGN_TOKENS.worlds.engineering.primary,
+    emissive: DESIGN_TOKENS.worlds.engineering.emissive,
     radius: 3.0,
   },
   {
@@ -60,8 +61,8 @@ export const PLANETS_3D: Sector3DDef[] = [
     tagline: WORLDS_CONFIG.creations.subtitle,
     description: WORLDS_CONFIG.creations.atmosphereDescription,
     position: WORLDS_CONFIG.creations.spaceCoordinates,
-    color: WORLDS_CONFIG.creations.themeColor,
-    emissive: WORLDS_CONFIG.creations.emissiveColor,
+    color: DESIGN_TOKENS.worlds.creations.primary,
+    emissive: DESIGN_TOKENS.worlds.creations.emissive,
     radius: 2.8,
   },
   {
@@ -70,8 +71,8 @@ export const PLANETS_3D: Sector3DDef[] = [
     tagline: WORLDS_CONFIG.origins.subtitle,
     description: WORLDS_CONFIG.origins.atmosphereDescription,
     position: WORLDS_CONFIG.origins.spaceCoordinates,
-    color: WORLDS_CONFIG.origins.themeColor,
-    emissive: WORLDS_CONFIG.origins.emissiveColor,
+    color: DESIGN_TOKENS.worlds.origins.primary,
+    emissive: DESIGN_TOKENS.worlds.origins.emissive,
     radius: 3.6,
   },
 ];
@@ -90,7 +91,7 @@ function generateAsteroidBelt(): { pos: [number, number, number]; scale: number;
 
   for (let i = 0; i < ASTEROID_COUNT; i++) {
     const angle = lcg() * Math.PI * 2;
-    const distance = 14 + lcg() * 8; // Donut between R=14 and R=22
+    const distance = 14 + lcg() * 9;
     const height = (lcg() - 0.5) * 4;
     items.push({
       pos: [Math.cos(angle) * distance, height, Math.sin(angle) * distance] as [number, number, number],
@@ -103,7 +104,7 @@ function generateAsteroidBelt(): { pos: [number, number, number]; scale: number;
 const STATIC_ASTEROIDS = generateAsteroidBelt();
 
 // ----------------------------------------------------------------------------
-// Central Nexus Megastructure
+// Central Nexus Megastructure Landmark
 // ----------------------------------------------------------------------------
 function CentralNexus({ onClick }: { onClick: () => void }) {
   const coreRef = useRef<THREE.Mesh>(null!);
@@ -137,52 +138,74 @@ function CentralNexus({ onClick }: { onClick: () => void }) {
       <mesh ref={coreRef}>
         <sphereGeometry args={[2.5, 32, 32]} />
         <meshStandardMaterial
-          color="#10B981"
-          emissive="#06B6D4"
-          emissiveIntensity={hovered ? 3.0 : 2.0}
+          color={DESIGN_TOKENS.core.hudEmerald}
+          emissive={DESIGN_TOKENS.core.hudCyan}
+          emissiveIntensity={hovered ? 3.0 : DESIGN_TOKENS.lighting.nexusGlow}
           roughness={0.1}
           metalness={0.9}
         />
       </mesh>
 
       {/* Local Point Light */}
-      <pointLight color="#10B981" intensity={35} distance={45} decay={2} />
+      <pointLight
+        color={DESIGN_TOKENS.core.hudEmerald}
+        intensity={hovered ? 45 : 35}
+        distance={45}
+        decay={2}
+      />
 
-      {/* Navigational Spire Array */}
+      {/* Navigational Spire Array with Signal Beacons */}
       <group ref={spireGroupRef}>
         {[0, Math.PI / 2, Math.PI, (Math.PI * 3) / 2].map((angle, idx) => (
           <group key={idx} rotation={[0, angle, 0]}>
             <mesh position={[4.5, 0, 0]}>
-              <boxGeometry args={[1.2, 0.4, 0.4]} />
-              <meshStandardMaterial color="#0B130E" metalness={0.9} />
+              <boxGeometry args={[1.4, 0.35, 0.35]} />
+              <meshStandardMaterial color="#0B130E" metalness={0.92} roughness={0.18} />
             </mesh>
-            <mesh position={[5.2, 0, 0]}>
-              <sphereGeometry args={[0.2, 16, 16]} />
-              <meshBasicMaterial color="#10B981" />
+            <mesh position={[5.3, 0, 0]}>
+              <sphereGeometry args={[0.22, 16, 16]} />
+              <meshBasicMaterial color={DESIGN_TOKENS.core.hudEmerald} />
+            </mesh>
+            {/* Beacon beam vertical line */}
+            <mesh position={[5.3, 0.8, 0]}>
+              <cylinderGeometry args={[0.02, 0.02, 1.4, 8]} />
+              <meshBasicMaterial color={DESIGN_TOKENS.core.hudCyan} transparent opacity={0.6} />
             </mesh>
           </group>
         ))}
       </group>
 
-      {/* Orbital Energy Rings */}
+      {/* 3 Orbital Accelerator Rings */}
       <group ref={ring1Ref}>
         <mesh rotation={[Math.PI / 2, 0, 0]}>
           <torusGeometry args={[5.6, 0.08, 16, 64]} />
-          <meshStandardMaterial color="#06B6D4" emissive="#06B6D4" emissiveIntensity={0.8} />
+          <meshStandardMaterial
+            color={DESIGN_TOKENS.core.hudCyan}
+            emissive={DESIGN_TOKENS.core.hudCyan}
+            emissiveIntensity={0.9}
+          />
         </mesh>
       </group>
 
       <group ref={ring2Ref} rotation={[Math.PI / 4, 0, 0]}>
         <mesh>
-          <torusGeometry args={[6.5, 0.06, 16, 64]} />
-          <meshStandardMaterial color="#10B981" emissive="#10B981" emissiveIntensity={0.8} />
+          <torusGeometry args={[6.6, 0.06, 16, 64]} />
+          <meshStandardMaterial
+            color={DESIGN_TOKENS.core.hudEmerald}
+            emissive={DESIGN_TOKENS.core.hudEmerald}
+            emissiveIntensity={0.9}
+          />
         </mesh>
       </group>
 
       <group ref={ring3Ref} rotation={[-Math.PI / 4, Math.PI / 6, 0]}>
         <mesh>
-          <torusGeometry args={[7.4, 0.05, 16, 64]} />
-          <meshStandardMaterial color="#8B5CF6" emissive="#8B5CF6" emissiveIntensity={0.7} />
+          <torusGeometry args={[7.6, 0.05, 16, 64]} />
+          <meshStandardMaterial
+            color={DESIGN_TOKENS.core.hudViolet}
+            emissive={DESIGN_TOKENS.core.hudViolet}
+            emissiveIntensity={0.8}
+          />
         </mesh>
       </group>
     </group>
@@ -197,7 +220,7 @@ function AsteroidBelt() {
 
   useFrame((_, delta) => {
     if (beltRef.current) {
-      beltRef.current.rotation.y += delta * 0.04;
+      beltRef.current.rotation.y += delta * 0.035;
     }
   });
 
@@ -214,7 +237,7 @@ function AsteroidBelt() {
           <meshStandardMaterial
             color="#334155"
             roughness={0.9}
-            metalness={0.2}
+            metalness={0.25}
           />
         </mesh>
       ))}
@@ -223,7 +246,7 @@ function AsteroidBelt() {
 }
 
 // ----------------------------------------------------------------------------
-// Celestial Planet Landmark with Atmospheric Glow Shell
+// Celestial Planet Landmark with Distinct Silhouette & Atmospheric Shell
 // ----------------------------------------------------------------------------
 function CelestialPlanet({
   planet,
@@ -237,14 +260,19 @@ function CelestialPlanet({
   const groupRef = useRef<THREE.Group>(null!);
   const sphereRef = useRef<THREE.Mesh>(null!);
   const atmoRef = useRef<THREE.Mesh>(null!);
+  const satellitesRef = useRef<THREE.Group>(null!);
   const [hovered, setHovered] = useState(false);
 
-  useFrame((state, delta) => {
+  useFrame((_, delta) => {
     if (sphereRef.current) {
       sphereRef.current.rotation.y += delta * 0.15;
     }
     if (atmoRef.current) {
       atmoRef.current.rotation.y -= delta * 0.08;
+    }
+    if (satellitesRef.current) {
+      satellitesRef.current.rotation.y += delta * 0.25;
+      satellitesRef.current.rotation.z += delta * 0.1;
     }
   });
 
@@ -265,47 +293,121 @@ function CelestialPlanet({
         document.body.style.cursor = 'auto';
       }}
     >
-      {/* Solid Planetary Core */}
+      {/* 1. Solid Planetary Core */}
       <mesh ref={sphereRef}>
         <sphereGeometry args={[planet.radius, 32, 32]} />
         <meshStandardMaterial
           color={planet.color}
           emissive={planet.emissive}
-          emissiveIntensity={isActive ? 2.2 : hovered ? 1.6 : 0.8}
-          roughness={0.4}
-          metalness={0.6}
+          emissiveIntensity={isActive ? 2.4 : hovered ? 1.8 : 0.9}
+          roughness={0.35}
+          metalness={0.65}
         />
       </mesh>
 
-      {/* Atmospheric Glow Shell */}
+      {/* 2. Atmospheric Glow Shell */}
       <mesh ref={atmoRef}>
         <sphereGeometry args={[planet.radius * 1.15, 32, 32]} />
         <meshBasicMaterial
           color={planet.color}
           transparent
-          opacity={isActive ? 0.35 : hovered ? 0.25 : 0.12}
+          opacity={isActive ? 0.38 : hovered ? 0.28 : 0.14}
           blending={THREE.AdditiveBlending}
           side={THREE.BackSide}
         />
       </mesh>
 
-      {/* Planetary Ring for Engineering and Creations */}
-      {(planet.id === 'engineering' || planet.id === 'creations') && (
-        <mesh rotation={[Math.PI / 3, 0, 0]}>
-          <ringGeometry args={[planet.radius * 1.4, planet.radius * 2.0, 48]} />
+      {/* 3. Distinct Planetary Architectural Silhouettes */}
+      {/* Core Systems: Monolith Relay Satellites */}
+      {planet.id === 'core_systems' && (
+        <group ref={satellitesRef}>
+          {[0, (Math.PI * 2) / 3, (Math.PI * 4) / 3].map((angle, i) => (
+            <group key={i} rotation={[0.3, angle, 0]}>
+              <mesh position={[planet.radius * 1.6, 0, 0]}>
+                <boxGeometry args={[0.3, 0.8, 0.2]} />
+                <meshStandardMaterial color="#0B130E" emissive="#10B981" emissiveIntensity={0.6} />
+              </mesh>
+            </group>
+          ))}
+          {/* Equatorial Orbit Ring */}
+          <mesh rotation={[Math.PI / 2, 0, 0]}>
+            <torusGeometry args={[planet.radius * 1.6, 0.03, 12, 48]} />
+            <meshBasicMaterial color="#10B981" transparent opacity={0.4} />
+          </mesh>
+        </group>
+      )}
+
+      {/* AI Intelligence: Geodesic Neural Lattice Cage */}
+      {planet.id === 'ai_intelligence' && (
+        <mesh>
+          <icosahedronGeometry args={[planet.radius * 1.25, 2]} />
           <meshBasicMaterial
-            color={planet.color}
+            color="#06B6D4"
+            wireframe
             transparent
-            opacity={0.3}
-            side={THREE.DoubleSide}
+            opacity={isActive ? 0.45 : hovered ? 0.35 : 0.2}
           />
         </mesh>
+      )}
+
+      {/* Engineering: Heavy Industrial Orbital Ring & Solar Trusses */}
+      {planet.id === 'engineering' && (
+        <group rotation={[Math.PI / 3, 0, 0]}>
+          <mesh>
+            <ringGeometry args={[planet.radius * 1.35, planet.radius * 1.9, 48]} />
+            <meshStandardMaterial
+              color="#F59E0B"
+              emissive="#D97706"
+              emissiveIntensity={0.5}
+              side={THREE.DoubleSide}
+              transparent
+              opacity={0.35}
+            />
+          </mesh>
+          <mesh>
+            <torusGeometry args={[planet.radius * 1.9, 0.05, 12, 48]} />
+            <meshBasicMaterial color="#FBBF24" />
+          </mesh>
+        </group>
+      )}
+
+      {/* Creations: Prismatic Double Tilted Rings & Floating Prisms */}
+      {planet.id === 'creations' && (
+        <group>
+          <mesh rotation={[Math.PI / 4, 0, 0]}>
+            <ringGeometry args={[planet.radius * 1.3, planet.radius * 1.7, 48]} />
+            <meshBasicMaterial
+              color="#8B5CF6"
+              transparent
+              opacity={0.32}
+              side={THREE.DoubleSide}
+            />
+          </mesh>
+          <mesh rotation={[-Math.PI / 4, Math.PI / 4, 0]}>
+            <torusGeometry args={[planet.radius * 1.5, 0.04, 12, 48]} />
+            <meshBasicMaterial color="#A78BFA" transparent opacity={0.5} />
+          </mesh>
+        </group>
+      )}
+
+      {/* Origins: Astrolabe Memory Rings */}
+      {planet.id === 'origins' && (
+        <group>
+          <mesh rotation={[Math.PI / 6, 0, 0]}>
+            <torusGeometry args={[planet.radius * 1.45, 0.04, 16, 64]} />
+            <meshStandardMaterial color="#EC4899" emissive="#DB2777" emissiveIntensity={0.6} />
+          </mesh>
+          <mesh rotation={[-Math.PI / 3, Math.PI / 3, 0]}>
+            <torusGeometry args={[planet.radius * 1.75, 0.03, 16, 64]} />
+            <meshBasicMaterial color="#F472B6" transparent opacity={0.35} />
+          </mesh>
+        </group>
       )}
 
       {/* Local Point Light */}
       <pointLight
         color={planet.color}
-        intensity={isActive ? 25 : hovered ? 15 : 6}
+        intensity={isActive ? 25 : hovered ? 16 : 8}
         distance={25}
       />
     </group>
@@ -324,8 +426,8 @@ function ConstellationConduits() {
           points={[[0, 0, 0], p.position]}
           color={p.color}
           transparent
-          opacity={0.25}
-          lineWidth={1}
+          opacity={0.28}
+          lineWidth={1.2}
         />
       ))}
     </group>
@@ -374,17 +476,21 @@ export function Universe3DScene({
       {/* Volumetric Tinted Nebula Clouds */}
       <mesh position={[40, 20, -50]}>
         <sphereGeometry args={[35, 16, 16]} />
-        <meshBasicMaterial color="#06B6D4" transparent opacity={0.03} />
+        <meshBasicMaterial color={DESIGN_TOKENS.core.hudCyan} transparent opacity={0.035} />
       </mesh>
       <mesh position={[-50, -30, -40]}>
         <sphereGeometry args={[40, 16, 16]} />
-        <meshBasicMaterial color="#8B5CF6" transparent opacity={0.03} />
+        <meshBasicMaterial color={DESIGN_TOKENS.core.hudViolet} transparent opacity={0.035} />
+      </mesh>
+      <mesh position={[20, -40, 30]}>
+        <sphereGeometry args={[30, 16, 16]} />
+        <meshBasicMaterial color={DESIGN_TOKENS.core.hudEmerald} transparent opacity={0.025} />
       </mesh>
 
       {/* Ambient & Directional Lighting */}
-      <ambientLight intensity={0.4} />
-      <directionalLight position={[30, 40, 20]} intensity={1.0} />
-      <directionalLight position={[-30, -30, -20]} intensity={0.4} color="#06B6D4" />
+      <ambientLight intensity={DESIGN_TOKENS.lighting.ambientSpace} />
+      <directionalLight position={[30, 40, 20]} intensity={DESIGN_TOKENS.lighting.sunIntensity} />
+      <directionalLight position={[-30, -30, -20]} intensity={0.5} color={DESIGN_TOKENS.core.hudCyan} />
 
       {/* Central Nexus Megastructure */}
       <CentralNexus onClick={onResetNexus} />

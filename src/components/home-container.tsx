@@ -12,6 +12,7 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { GlobalHeader } from '@/components/nav/global-header';
 import { ExecutiveHeader } from '@/components/dossier/executive-header';
 import { SkillsMatrix } from '@/components/dossier/skills-matrix';
+import { SkillConstellation } from '@/components/visualizations/SkillConstellation';
 import { CredentialsSection } from '@/components/dossier/credentials-section';
 import { ExperienceTimeline } from '@/components/dossier/experience-timeline';
 import { ProjectsGrid } from '@/components/dossier/projects-grid';
@@ -87,6 +88,9 @@ export function HomeContainer({
             selectedSkill={selectedSkill}
             onSelectSkill={setSelectedSkill}
           />
+          <div className="mb-12">
+            <SkillConstellation skills={skills} />
+          </div>
           <ProjectsGrid
             projects={projects}
             selectedSkill={selectedSkill}
