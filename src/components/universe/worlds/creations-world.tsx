@@ -2,13 +2,15 @@
 
 // ============================================================================
 // THE YACINEVERSE — World 4: Creations & Utilities
-// Interior environment: Crystalline archipelago, geometric prisms, creative engines
+// Crystalline archipelago, levitating refractive prisms, creative sandboxes
 // ============================================================================
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useRef } from 'react';
 import * as THREE from 'three';
+import { useFrame } from '@react-three/fiber';
 import { WorldTerminal } from '../world-terminal';
 import type { InteractiveArtifact } from '../universe-types';
+import { getWorldArtifacts } from '../universe-artifacts';
 
 interface CreationsWorldProps {
   activeArtifact: InteractiveArtifact | null;
@@ -21,34 +23,28 @@ export function CreationsWorld({
   onActivateArtifact,
   onCloseArtifact,
 }: CreationsWorldProps) {
-  const artifacts: InteractiveArtifact[] = useMemo(() => {
-    return [
-      {
-        id: 'sandbox-engine',
-        type: 'project',
-        title: 'Cosmic Sandbox Engine',
-        subtitle: 'Interactive 3D WebGL Visualization Suite',
-        position: [-6, 1.8, -1],
-        color: '#8B5CF6',
-      },
-      {
-        id: 'devtools-artifact',
-        type: 'project',
-        title: 'Developer Ergonomics Suite',
-        subtitle: 'Zero-Trust API Routing & Cache Utilities',
-        position: [6, 1.8, -1],
-        color: '#8B5CF6',
-      },
-      // Space Orbit Return Beacon
-      {
-        id: 'exit-portal',
-        type: 'portal',
-        title: 'Space Orbit Gateway',
-        position: [0, 1.8, 14],
-        color: '#8B5CF6',
-      },
-    ];
+  const crystalsRef = useRef<THREE.Group>(null!);
+
+  const artifacts = useMemo(() => {
+    return getWorldArtifacts('creations', {
+      projects: [],
+      skills: [],
+      experiences: [],
+      credentials: [],
+      stories: [],
+    });
   }, []);
+
+  useFrame((state) => {
+    const t = state.clock.getElapsedTime();
+    if (crystalsRef.current) {
+      crystalsRef.current.children.forEach((child, i) => {
+        child.rotation.x = t * 0.4 + i;
+        child.rotation.y = t * 0.6 + i;
+        child.position.y = 8 + Math.sin(t * 1.8 + i) * 1.2;
+      });
+    }
+  });
 
   return (
     <group>
@@ -67,25 +63,49 @@ export function CreationsWorld({
         />
       </mesh>
 
-      {/* Floating Geometric Crystals in Background */}
-      {[-16, -8, 0, 8, 16].map((x, idx) => (
-        <mesh
-          key={idx}
-          position={[x, 6 + (idx % 3) * 2, -15]}
-          rotation={[idx * 0.4, idx * 0.2, 0]}
-        >
-          <octahedronGeometry args={[2.0 + (idx % 2), 0]} />
-          <meshStandardMaterial
-            color="#8B5CF6"
-            emissive="#7C3AED"
-            emissiveIntensity={1.2}
-            roughness={0.1}
-            metalness={0.9}
-          />
+      {/* Violet Rune Rings on Platform */}
+      {[7, 14, 21].map((radius, idx) => (
+        <mesh key={idx} position={[0, 0.05, 0]} rotation={[Math.PI / 2, 0, 0]}>
+          <ringGeometry args={[radius - 0.08, radius, 48]} />
+          <meshBasicMaterial color="#8B5CF6" transparent opacity={0.4} />
         </mesh>
       ))}
 
-      {/* Exit Gateway Light Column */}
+      {/* Floating Geometric Crystals in Background */}
+      <group ref={crystalsRef}>
+        {[-16, -8, 0, 8, 16].map((x, idx) => (
+          <mesh
+            key={idx}
+            position={[x, 8, -15]}
+          >
+            <octahedronGeometry args={[2.0 + (idx % 2) * 0.6, 0]} />
+            <meshStandardMaterial
+              color="#8B5CF6"
+              emissive="#7C3AED"
+              emissiveIntensity={1.2}
+              roughness={0.1}
+              metalness={0.9}
+            />
+          </mesh>
+        ))}
+      </group>
+
+      {/* Floating Prismatic Sandbox Pedestals */}
+      {[-12, 12].map((x, idx) => (
+        <group key={idx} position={[x, 1, 0]}>
+          <mesh>
+            <cylinderGeometry args={[1.5, 1.8, 2, 8]} />
+            <meshStandardMaterial color="#1E1135" roughness={0.3} metalness={0.7} />
+          </mesh>
+          <mesh position={[0, 1.1, 0]}>
+            <dodecahedronGeometry args={[0.8, 0]} />
+            <meshStandardMaterial color="#A78BFA" emissive="#8B5CF6" emissiveIntensity={1.4} />
+          </mesh>
+          <pointLight position={[0, 1.5, 0]} color="#8B5CF6" intensity={10} distance={8} />
+        </group>
+      ))}
+
+      {/* Space Orbit Gateway Light Column */}
       <group position={[0, 0, 14]}>
         <mesh position={[0, 6, 0]}>
           <cylinderGeometry args={[1.8, 1.8, 12, 16, 1, true]} />

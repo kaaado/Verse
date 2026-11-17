@@ -2,16 +2,17 @@
 
 // ============================================================================
 // THE YACINEVERSE — Spatially Integrated In-World Artifact & Terminal
-// 3D holographic artifact with proximity activation and in-space spatial UI
+// 3D holographic artifact with proximity activation, deterministic input & spatial UI
 // ============================================================================
 
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import * as THREE from 'three';
 import { useFrame } from '@react-three/fiber';
 import { Html } from '@react-three/drei';
 import type { InteractiveArtifact } from './universe-types';
-import type { Project, Skill, Story } from '@/types/database';
+import type { Project, Skill, Story, Experience } from '@/types/database';
 import { universeAudio } from './universe-audio';
+import { inputManager } from './input-manager';
 import { IconExternalLink, IconSparkles } from '@/components/icons';
 
 interface WorldTerminalProps {
@@ -30,6 +31,25 @@ export function WorldTerminal({
   const meshRef = useRef<THREE.Mesh>(null!);
   const ringRef = useRef<THREE.Mesh>(null!);
   const [hovered, setHovered] = useState(false);
+
+  // Synchronize terminal open/close state with Centralized Input Manager
+  useEffect(() => {
+    if (isActive) {
+      inputManager.registerTerminalCloseHandler(onClose);
+      inputManager.setInteractionTarget({
+        context: 'TERMINAL_OPEN',
+        type: 'TERMINAL_OPEN',
+        label: `Close [${artifact.title}]`,
+        distance: 0,
+        metadata: artifact,
+      });
+    }
+    return () => {
+      if (isActive) {
+        inputManager.unregisterTerminalCloseHandler();
+      }
+    };
+  }, [isActive, onClose, artifact]);
 
   useFrame((state) => {
     const t = state.clock.getElapsedTime();
@@ -52,6 +72,7 @@ export function WorldTerminal({
   const projectData = artifact.type === 'project' ? (artifact.data as Project) : null;
   const skillData = artifact.type === 'skill' ? (artifact.data as Skill) : null;
   const storyData = artifact.type === 'story' ? (artifact.data as Story) : null;
+  const expData = artifact.type === 'experience' ? (artifact.data as Experience) : null;
 
   return (
     <group position={artifact.position}>
@@ -72,6 +93,7 @@ export function WorldTerminal({
         {artifact.type === 'project' && <octahedronGeometry args={[1.2, 0]} />}
         {artifact.type === 'skill' && <cylinderGeometry args={[0.4, 0.4, 1.8, 6]} />}
         {artifact.type === 'story' && <dodecahedronGeometry args={[1.1, 0]} />}
+        {artifact.type === 'experience' && <boxGeometry args={[1.0, 1.4, 1.0]} />}
         {artifact.type === 'portal' && <torusGeometry args={[1.6, 0.1, 16, 48]} />}
 
         <meshStandardMaterial
@@ -107,7 +129,7 @@ export function WorldTerminal({
           <div
             onClick={(e) => e.stopPropagation()}
             className="w-80 sm:w-96 bg-[#0B0F19]/95 backdrop-blur-xl border border-[#1E293B] rounded-2xl p-5 shadow-[0_0_30px_rgba(0,0,0,0.8)] text-[#F8FAFC] select-none"
-            style={{ borderColor: `${artifact.color}66` }}
+            style={{ borderColor: `${artifact.color}88` }}
           >
             {/* Terminal Header */}
             <div className="flex items-start justify-between pb-3 border-b border-[#1E293B]">
@@ -125,14 +147,15 @@ export function WorldTerminal({
               <button
                 type="button"
                 onClick={onClose}
-                className="w-7 h-7 rounded-lg bg-[#1E293B] text-[#94A3B8] hover:text-[#F8FAFC] flex items-center justify-center text-xs font-mono"
+                className="w-7 h-7 rounded-lg bg-[#1E293B] text-[#94A3B8] hover:text-[#F8FAFC] flex items-center justify-center text-xs font-mono transition-colors"
+                title="Close Terminal [Esc / E]"
               >
                 ✕
               </button>
             </div>
 
             {/* Terminal Body Content */}
-            <div className="py-3 space-y-3 text-xs text-[#94A3B8] leading-relaxed">
+            <div className="py-3 space-y-3 text-xs text-[#94A3B8] leading-relaxed max-h-72 overflow-y-auto">
               {projectData && (
                 <>
                   <p className="text-[#F8FAFC] font-medium">{projectData.tagline}</p>
@@ -191,6 +214,18 @@ export function WorldTerminal({
                   <p>{storyData.excerpt}</p>
                 </>
               )}
+
+              {expData && (
+                <div className="space-y-1.5">
+                  <p className="text-[#F8FAFC] font-semibold">{expData.role} at {expData.organization}</p>
+                  <p className="text-[11px] text-[#A855F7] font-mono">{expData.start_date} – {expData.end_date || 'Present'}</p>
+                  {expData.description && <p>{expData.description}</p>}
+                </div>
+              )}
+
+              {!projectData && !skillData && !storyData && !expData && (
+                <p>{artifact.subtitle || 'Synthesized exploration artifact.'}</p>
+              )}
             </div>
 
             {/* Terminal Actions */}
@@ -198,9 +233,9 @@ export function WorldTerminal({
               <button
                 type="button"
                 onClick={onClose}
-                className="font-mono text-[#94A3B8] hover:text-[#F8FAFC]"
+                className="font-mono text-[#94A3B8] hover:text-[#F8FAFC] transition-colors"
               >
-                Close [Esc]
+                Close [Esc / E]
               </button>
 
               {projectData && (

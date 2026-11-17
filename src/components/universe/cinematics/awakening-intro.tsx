@@ -1,14 +1,13 @@
 'use client';
 
 // ============================================================================
-// THE YACINEVERSE — Cinematic Awakening Introduction
-// Scene A1 Awakening & Scene A2 Launch Sequence
+// THE YACINEVERSE — Pure Visual Cinematic Awakening (Visual Storytelling Only)
+// No narrative paragraphs. Darkness -> Energy Awakening -> Portal Formation -> Launch
 // ============================================================================
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { universeAudio } from '../universe-audio';
-import { IconSparkles } from '@/components/icons';
 
 interface AwakeningIntroProps {
   onLaunchComplete: () => void;
@@ -19,11 +18,19 @@ export function AwakeningIntro({
   onLaunchComplete,
   onSkipIntro,
 }: AwakeningIntroProps) {
-  const [phase, setPhase] = useState<'AWAKENING_POEM' | 'TITLE_REVEAL' | 'READY_PROMPT' | 'WARP_LAUNCH'>('AWAKENING_POEM');
+  // Visual Stages: A. DARKNESS -> B. AWAKENING -> C. PORTAL -> D. LAUNCH
+  const [stage, setStage] = useState<'A_DARKNESS' | 'B_AWAKENING' | 'C_PORTAL' | 'D_LAUNCH'>('A_DARKNESS');
+  const [hasInteracted, setHasInteracted] = useState(false);
 
   useEffect(() => {
-    const t1 = setTimeout(() => setPhase('TITLE_REVEAL'), 2800);
-    const t2 = setTimeout(() => setPhase('READY_PROMPT'), 5600);
+    // Stage A -> Stage B transition after initial mount
+    const t1 = setTimeout(() => {
+      setStage('B_AWAKENING');
+    }, 800);
+
+    const t2 = setTimeout(() => {
+      setStage('C_PORTAL');
+    }, 2800);
 
     return () => {
       clearTimeout(t1);
@@ -31,125 +38,120 @@ export function AwakeningIntro({
     };
   }, []);
 
-  const handleLaunch = () => {
+  const handleStartExperience = () => {
+    if (hasInteracted) return;
+    setHasInteracted(true);
     universeAudio.init();
     universeAudio.resume();
     universeAudio.playWarpSound();
-    setPhase('WARP_LAUNCH');
+    setStage('D_LAUNCH');
+
     setTimeout(() => {
       onLaunchComplete();
-    }, 2200);
+    }, 1800);
   };
 
-  const handleSkip = () => {
+  const handleSkip = (e: React.MouseEvent) => {
+    e.stopPropagation();
     universeAudio.init();
     universeAudio.resume();
     onSkipIntro();
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-[#0B0F19] flex flex-col items-center justify-center p-6 select-none overflow-hidden">
-      {/* Background Starlight & Cosmic Dust Glow */}
-      <div className="absolute inset-0 cosmic-grid opacity-30 pointer-events-none" />
-      <div className="absolute w-[600px] h-[600px] rounded-full bg-gradient-radial from-[#10B981]/15 via-[#06B6D4]/10 to-transparent blur-3xl pointer-events-none" />
+    <div
+      onClick={handleStartExperience}
+      className="fixed inset-0 z-50 bg-[#0B0F19] flex flex-col items-center justify-center p-6 select-none cursor-pointer overflow-hidden"
+    >
+      {/* Background Star Points */}
+      <div className="absolute inset-0 cosmic-grid opacity-20 pointer-events-none" />
 
-      {/* Top Skip Button */}
+      {/* Minimal Icon-Based Skip Button */}
       <div className="absolute top-6 right-6 z-40">
         <button
           type="button"
           onClick={handleSkip}
-          className="text-xs font-mono text-[#94A3B8] hover:text-[#F8FAFC] px-3.5 py-1.5 rounded-xl border border-[#1E293B] hover:border-[#334155] bg-[#111827]/60 backdrop-blur-md transition-all"
+          className="flex items-center space-x-1.5 px-3 py-1.5 rounded-full border border-[#1E293B] hover:border-[#334155] bg-[#111827]/70 backdrop-blur-md text-[11px] font-mono text-[#94A3B8] hover:text-[#F8FAFC] transition-all"
+          title="Skip Introduction [Esc]"
         >
-          Skip Introduction [Esc] →
+          <span>✕</span>
+          <span className="hidden sm:inline">Skip Introduction</span>
         </button>
       </div>
 
       <AnimatePresence mode="wait">
-        {/* Phase 1: Poetic Awakening Statement */}
-        {phase === 'AWAKENING_POEM' && (
+        {/* Stage B & C: Energy Awakening & Portal Geometry */}
+        {(stage === 'B_AWAKENING' || stage === 'C_PORTAL') && (
           <motion.div
-            key="poem"
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -15 }}
-            transition={{ duration: 1.2, ease: 'easeOut' }}
-            className="text-center max-w-xl space-y-4"
-          >
-            <span className="text-[11px] font-mono uppercase tracking-widest text-[#10B981] flex items-center justify-center space-x-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#10B981] animate-ping" />
-              <span>SIGNAL DETECTED</span>
-            </span>
-            <h2 className="text-xl sm:text-2xl lg:text-3xl font-display font-light text-[#F8FAFC] tracking-wide leading-relaxed">
-              &ldquo;Somewhere, beyond the boundaries of ordinary thinking...&rdquo;
-            </h2>
-          </motion.div>
-        )}
-
-        {/* Phase 2: Title & Universe Identity */}
-        {(phase === 'TITLE_REVEAL' || phase === 'READY_PROMPT') && (
-          <motion.div
-            key="title"
-            initial={{ opacity: 0, scale: 0.96 }}
+            key="awakening"
+            initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 1.05 }}
-            transition={{ duration: 1.0, ease: 'easeOut' }}
-            className="text-center max-w-2xl space-y-4"
+            exit={{ opacity: 0, scale: 1.5 }}
+            transition={{ duration: 1.2, ease: 'easeOut' }}
+            className="flex flex-col items-center justify-center relative pointer-events-none"
           >
-            <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-[#1E293B]/60 border border-[#10B981]/30 text-xs font-mono text-[#10B981] mb-2">
-              <IconSparkles className="w-3.5 h-3.5" />
-              <span>COSMIC ARCHITECTURE PROTOCOL</span>
+            {/* Concentric Rotating Energy Rings */}
+            <div className="relative w-48 h-48 sm:w-64 sm:h-64 flex items-center justify-center">
+              {/* Outer Energy Ring */}
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
+                className="absolute inset-0 rounded-full border border-dashed border-[#10B981]/40 shadow-[0_0_30px_rgba(16,185,129,0.2)]"
+              />
+
+              {/* Counter-Rotating Middle Ring */}
+              <motion.div
+                animate={{ rotate: -360 }}
+                transition={{ duration: 12, repeat: Infinity, ease: 'linear' }}
+                className="absolute inset-4 rounded-full border border-[#06B6D4]/30"
+              />
+
+              {/* Inner Pulsating Plasma Core */}
+              <motion.div
+                animate={{
+                  scale: [1, 1.15, 1],
+                  boxShadow: [
+                    '0 0 20px #10B981',
+                    '0 0 50px #06B6D4',
+                    '0 0 20px #10B981',
+                  ],
+                }}
+                transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+                className="w-12 h-12 rounded-full bg-gradient-radial from-white via-[#10B981] to-[#06B6D4]"
+              />
             </div>
 
-            <h1 className="text-4xl sm:text-6xl lg:text-7xl font-bold font-display text-[#F8FAFC] tracking-tight">
-              THE YACINEVERSE
-            </h1>
-
-            <p className="text-sm sm:text-base text-[#06B6D4] font-mono tracking-widest uppercase">
-              A journey through the mind of a builder
-            </p>
-
-            {phase === 'READY_PROMPT' && (
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6 }}
-                className="pt-8"
-              >
-                <button
-                  type="button"
-                  onClick={handleLaunch}
-                  className="group relative px-8 py-3.5 rounded-2xl bg-[#10B981] text-[#0B0F19] font-mono font-bold text-sm tracking-wider uppercase shadow-[0_0_25px_rgba(16,185,129,0.5)] hover:shadow-[0_0_35px_rgba(16,185,129,0.7)] hover:bg-[#10B981]/90 active:scale-95 transition-all"
-                >
-                  <span className="flex items-center space-x-2">
-                    <span>ENTER THE UNIVERSE</span>
-                    <span className="group-hover:translate-x-1 transition-transform">→</span>
-                  </span>
-                </button>
-                <div className="text-[11px] font-mono text-[#94A3B8] mt-3">
-                  Click to initialize WebGL 3D flight & spatial audio
-                </div>
-              </motion.div>
-            )}
+            {/* Minimal Brand Identity Symbol */}
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4, duration: 0.8 }}
+              className="mt-8 text-center"
+            >
+              <h1 className="text-2xl sm:text-3xl font-bold font-display tracking-[0.3em] text-[#F8FAFC] uppercase">
+                THE YACINEVERSE
+              </h1>
+              <p className="text-[10px] font-mono tracking-widest text-[#10B981] mt-2 uppercase">
+                ENTER THE UNIVERSE
+              </p>
+            </motion.div>
           </motion.div>
         )}
 
-        {/* Phase 3: Warp Launch Acceleration FX */}
-        {phase === 'WARP_LAUNCH' && (
+        {/* Stage D: Launch Acceleration Flash */}
+        {stage === 'D_LAUNCH' && (
           <motion.div
-            key="warp"
+            key="launch"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="text-center space-y-4"
+            className="flex flex-col items-center justify-center pointer-events-none"
           >
             <motion.div
-              animate={{ scale: [1, 1.8, 40], opacity: [0.8, 1, 0] }}
-              transition={{ duration: 2.0, ease: 'easeInOut' }}
-              className="w-24 h-24 rounded-full bg-gradient-radial from-white via-[#06B6D4] to-transparent shadow-[0_0_60px_#10B981] mx-auto"
+              animate={{ scale: [1, 3, 50], opacity: [0.9, 1, 0] }}
+              transition={{ duration: 1.6, ease: 'easeInOut' }}
+              className="w-32 h-32 rounded-full bg-gradient-radial from-white via-[#06B6D4] to-transparent shadow-[0_0_80px_#10B981]"
             />
-            <p className="text-xs font-mono tracking-widest text-[#10B981] uppercase animate-pulse">
-              WARP ACCELERATION INITIATED...
-            </p>
           </motion.div>
         )}
       </AnimatePresence>

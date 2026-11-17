@@ -1,261 +1,196 @@
 'use client';
 
 // ============================================================================
-// THE YACINEVERSE — 3D Game-Quality Universe Explorer Scene
-// Built with Three.js, @react-three/fiber, and @react-three/drei
-// Immersive WebGL celestial visualization with interactive sectors & camera rig
+// THE YACINEVERSE — Upgraded Enormous Layered Space Environment & Central Nexus
+// Multi-layer starfield, volumetric nebulae, asteroid fields & celestial planets
 // ============================================================================
 
 import React, { useRef, useState, useMemo } from 'react';
 import * as THREE from 'three';
-import { useFrame, useThree } from '@react-three/fiber';
+import { useFrame } from '@react-three/fiber';
 import { Stars, Float, Html, Line } from '@react-three/drei';
 import type { Project } from '@/types/database';
+import { WORLDS_CONFIG, type WorldId } from './universe-types';
 
 export interface Sector3DDef {
-  id: string;
+  id: WorldId;
   title: string;
   tagline: string;
+  description?: string;
   position: [number, number, number];
-  cameraOffset: [number, number, number];
   color: string;
   emissive: string;
-  description: string;
+  radius: number;
 }
 
-export const SECTORS_3D: Sector3DDef[] = [
+export const PLANETS_3D: Sector3DDef[] = [
   {
     id: 'core_systems',
-    title: 'Core Systems & Architecture',
-    tagline: 'Distributed Backends & Zero-Trust Engines',
-    position: [-22, 3, -10],
-    cameraOffset: [-14, 6, 2],
-    color: '#10B981',
-    emissive: '#059669',
-    description: 'Distributed backends, high-concurrency microservices, and Zero-Trust database isolation.',
+    title: WORLDS_CONFIG.core_systems.title,
+    tagline: WORLDS_CONFIG.core_systems.subtitle,
+    description: WORLDS_CONFIG.core_systems.atmosphereDescription,
+    position: WORLDS_CONFIG.core_systems.spaceCoordinates,
+    color: WORLDS_CONFIG.core_systems.themeColor,
+    emissive: WORLDS_CONFIG.core_systems.emissiveColor,
+    radius: 3.4,
   },
   {
     id: 'ai_intelligence',
-    title: 'AI & Machine Intelligence',
-    tagline: 'Neural Inference & Multi-Agent Pipelines',
-    position: [22, 5, -12],
-    cameraOffset: [14, 8, 0],
-    color: '#06B6D4',
-    emissive: '#0891B2',
-    description: 'Neural network inference, computer vision models, and autonomous multi-agent pipelines.',
+    title: WORLDS_CONFIG.ai_intelligence.title,
+    tagline: WORLDS_CONFIG.ai_intelligence.subtitle,
+    description: WORLDS_CONFIG.ai_intelligence.atmosphereDescription,
+    position: WORLDS_CONFIG.ai_intelligence.spaceCoordinates,
+    color: WORLDS_CONFIG.ai_intelligence.themeColor,
+    emissive: WORLDS_CONFIG.ai_intelligence.emissiveColor,
+    radius: 3.2,
   },
   {
     id: 'engineering',
-    title: 'Engineering & Field Systems',
-    tagline: 'Offline-First Protocols & Edge Telemetry',
-    position: [16, -14, 8],
-    cameraOffset: [10, -8, 20],
-    color: '#F59E0B',
-    emissive: '#D97706',
-    description: 'Offline-first sync protocols, IoT edge telemetry, and resilient field operations.',
+    title: WORLDS_CONFIG.engineering.title,
+    tagline: WORLDS_CONFIG.engineering.subtitle,
+    description: WORLDS_CONFIG.engineering.atmosphereDescription,
+    position: WORLDS_CONFIG.engineering.spaceCoordinates,
+    color: WORLDS_CONFIG.engineering.themeColor,
+    emissive: WORLDS_CONFIG.engineering.emissiveColor,
+    radius: 3.0,
   },
   {
     id: 'creations',
-    title: 'Creations & Utilities',
-    tagline: 'Developer Tooling & Interactive Sandboxes',
-    position: [-18, -12, 10],
-    cameraOffset: [-10, -6, 22],
-    color: '#8B5CF6',
-    emissive: '#7C3AED',
-    description: 'Interactive developer tools, creative sandboxes, and open-source utility engines.',
+    title: WORLDS_CONFIG.creations.title,
+    tagline: WORLDS_CONFIG.creations.subtitle,
+    description: WORLDS_CONFIG.creations.atmosphereDescription,
+    position: WORLDS_CONFIG.creations.spaceCoordinates,
+    color: WORLDS_CONFIG.creations.themeColor,
+    emissive: WORLDS_CONFIG.creations.emissiveColor,
+    radius: 2.8,
   },
   {
     id: 'origins',
-    title: 'Origins & Evolution',
-    tagline: 'Foundations, Research & Philosophy',
-    position: [0, 20, -8],
-    cameraOffset: [0, 24, 6],
-    color: '#EC4899',
-    emissive: '#DB2777',
-    description: 'Foundational research, academic computer science roots, and architectural principles.',
+    title: WORLDS_CONFIG.origins.title,
+    tagline: WORLDS_CONFIG.origins.subtitle,
+    description: WORLDS_CONFIG.origins.atmosphereDescription,
+    position: WORLDS_CONFIG.origins.spaceCoordinates,
+    color: WORLDS_CONFIG.origins.themeColor,
+    emissive: WORLDS_CONFIG.origins.emissiveColor,
+    radius: 3.6,
   },
 ];
 
-// ----------------------------------------------------------------------------
-// Camera Kinematics Rig
-// Smoothly interpolates camera position & look-at vector towards target
-// ----------------------------------------------------------------------------
-function CameraRig({
-  activeSectorId,
-  isNexusFocused,
-}: {
-  activeSectorId: string | null;
-  isNexusFocused: boolean;
-}) {
-  const { camera } = useThree();
-  const currentLookAt = useRef(new THREE.Vector3(0, 0, 0));
-  const targetLookAt = useRef(new THREE.Vector3(0, 0, 0));
-  const targetPos = useRef(new THREE.Vector3(0, 10, 48));
+export const SECTORS_3D = PLANETS_3D;
 
-  useFrame((state, delta) => {
-    // Determine target camera position and look-at
-    if (activeSectorId) {
-      const sector = SECTORS_3D.find((s) => s.id === activeSectorId);
-      if (sector) {
-        targetPos.current.set(...sector.cameraOffset);
-        targetLookAt.current.set(...sector.position);
-      }
-    } else if (isNexusFocused) {
-      targetPos.current.set(0, 3, 20);
-      targetLookAt.current.set(0, 0, 0);
-    } else {
-      // Default orbit position with subtle mouse parallax
-      const mouseX = (state.pointer.x * 4);
-      const mouseY = (state.pointer.y * 3);
-      targetPos.current.set(mouseX, 10 + mouseY, 48);
-      targetLookAt.current.set(0, 0, 0);
-    }
+// Deterministic Asteroid Field Belt Coordinates (React 19 pure)
+const ASTEROID_COUNT = 180;
+function generateAsteroidBelt(): { pos: [number, number, number]; scale: number; rot: [number, number, number] }[] {
+  const items = [];
+  let seed = 1337;
+  const lcg = () => {
+    seed = (seed * 1664525 + 1013904223) % 4294967296;
+    return seed / 4294967296;
+  };
 
-    // Kinematic damping interpolation
-    const dampSpeed = 3.2 * delta;
-    camera.position.lerp(targetPos.current, THREE.MathUtils.clamp(dampSpeed, 0, 0.2));
-    currentLookAt.current.lerp(targetLookAt.current, THREE.MathUtils.clamp(dampSpeed, 0, 0.2));
-    camera.lookAt(currentLookAt.current);
-  });
-
-  return null;
+  for (let i = 0; i < ASTEROID_COUNT; i++) {
+    const angle = lcg() * Math.PI * 2;
+    const distance = 14 + lcg() * 8; // Donut between R=14 and R=22
+    const height = (lcg() - 0.5) * 4;
+    items.push({
+      pos: [Math.cos(angle) * distance, height, Math.sin(angle) * distance] as [number, number, number],
+      scale: 0.15 + lcg() * 0.35,
+      rot: [lcg() * Math.PI, lcg() * Math.PI, 0] as [number, number, number],
+    });
+  }
+  return items;
 }
+const STATIC_ASTEROIDS = generateAsteroidBelt();
 
 // ----------------------------------------------------------------------------
-// Central Nexus Hub
-// Pulsating core, layered wireframe shells, counter-rotating energy rings
+// Central Nexus Megastructure
 // ----------------------------------------------------------------------------
-function CentralNexus({
-  onClick,
-  isFocused,
-}: {
-  onClick: () => void;
-  isFocused: boolean;
-}) {
+function CentralNexus({ onClick }: { onClick: () => void }) {
   const coreRef = useRef<THREE.Mesh>(null!);
-  const shellRef1 = useRef<THREE.Mesh>(null!);
-  const shellRef2 = useRef<THREE.Mesh>(null!);
   const ring1Ref = useRef<THREE.Group>(null!);
   const ring2Ref = useRef<THREE.Group>(null!);
   const ring3Ref = useRef<THREE.Group>(null!);
+  const spireGroupRef = useRef<THREE.Group>(null!);
   const [hovered, setHovered] = useState(false);
 
   useFrame((state) => {
     const t = state.clock.getElapsedTime();
 
-    // Pulse core scale and light
     if (coreRef.current) {
-      const pulse = 1 + Math.sin(t * 2.5) * 0.08;
+      const pulse = 1 + Math.sin(t * 2.2) * 0.08;
       coreRef.current.scale.set(pulse, pulse, pulse);
     }
-
-    // Rotate shells
-    if (shellRef1.current) {
-      shellRef1.current.rotation.x = t * 0.2;
-      shellRef1.current.rotation.y = t * 0.3;
-    }
-    if (shellRef2.current) {
-      shellRef2.current.rotation.x = -t * 0.15;
-      shellRef2.current.rotation.z = t * 0.25;
-    }
-
-    // Counter-rotating orbital rings
-    if (ring1Ref.current) ring1Ref.current.rotation.z = t * 0.4;
-    if (ring2Ref.current) ring2Ref.current.rotation.x = t * 0.35;
-    if (ring3Ref.current) ring3Ref.current.rotation.y = -t * 0.3;
+    if (ring1Ref.current) ring1Ref.current.rotation.z = t * 0.3;
+    if (ring2Ref.current) ring2Ref.current.rotation.x = t * 0.25;
+    if (ring3Ref.current) ring3Ref.current.rotation.y = -t * 0.2;
+    if (spireGroupRef.current) spireGroupRef.current.rotation.y = t * 0.1;
   });
 
   return (
     <group
       position={[0, 0, 0]}
-      onClick={(e) => {
-        e.stopPropagation();
-        onClick();
-      }}
-      onPointerOver={(e) => {
-        e.stopPropagation();
-        setHovered(true);
-        document.body.style.cursor = 'pointer';
-      }}
-      onPointerOut={() => {
-        setHovered(false);
-        document.body.style.cursor = 'auto';
-      }}
+      onClick={onClick}
+      onPointerOver={() => setHovered(true)}
+      onPointerOut={() => setHovered(false)}
     >
-      {/* Central Pulsating Emissive Core */}
+      {/* Central Pulsating Reactor Core */}
       <mesh ref={coreRef}>
-        <sphereGeometry args={[2.2, 32, 32]} />
+        <sphereGeometry args={[2.5, 32, 32]} />
         <meshStandardMaterial
           color="#10B981"
           emissive="#06B6D4"
-          emissiveIntensity={hovered || isFocused ? 2.5 : 1.6}
-          roughness={0.2}
-          metalness={0.8}
+          emissiveIntensity={hovered ? 3.0 : 2.0}
+          roughness={0.1}
+          metalness={0.9}
         />
       </mesh>
 
-      {/* Point Light emitted from Nexus */}
-      <pointLight
-        color="#10B981"
-        intensity={hovered || isFocused ? 40 : 25}
-        distance={35}
-        decay={2}
-      />
+      {/* Local Point Light */}
+      <pointLight color="#10B981" intensity={35} distance={45} decay={2} />
 
-      {/* Inner Wireframe Icosahedron */}
-      <mesh ref={shellRef1}>
-        <icosahedronGeometry args={[3.4, 1]} />
-        <meshStandardMaterial
-          color="#06B6D4"
-          wireframe
-          transparent
-          opacity={0.4}
-        />
-      </mesh>
+      {/* Navigational Spire Array */}
+      <group ref={spireGroupRef}>
+        {[0, Math.PI / 2, Math.PI, (Math.PI * 3) / 2].map((angle, idx) => (
+          <group key={idx} rotation={[0, angle, 0]}>
+            <mesh position={[4.5, 0, 0]}>
+              <boxGeometry args={[1.2, 0.4, 0.4]} />
+              <meshStandardMaterial color="#0B130E" metalness={0.9} />
+            </mesh>
+            <mesh position={[5.2, 0, 0]}>
+              <sphereGeometry args={[0.2, 16, 16]} />
+              <meshBasicMaterial color="#10B981" />
+            </mesh>
+          </group>
+        ))}
+      </group>
 
-      {/* Outer Wireframe Dodecahedron */}
-      <mesh ref={shellRef2}>
-        <dodecahedronGeometry args={[4.2, 0]} />
-        <meshStandardMaterial
-          color="#10B981"
-          wireframe
-          transparent
-          opacity={0.25}
-        />
-      </mesh>
-
-      {/* Orbital Ring 1: Horizontal */}
+      {/* Orbital Energy Rings */}
       <group ref={ring1Ref}>
         <mesh rotation={[Math.PI / 2, 0, 0]}>
-          <torusGeometry args={[5.2, 0.06, 16, 64]} />
+          <torusGeometry args={[5.6, 0.08, 16, 64]} />
           <meshStandardMaterial color="#06B6D4" emissive="#06B6D4" emissiveIntensity={0.8} />
         </mesh>
       </group>
 
-      {/* Orbital Ring 2: Tilted 45 deg */}
       <group ref={ring2Ref} rotation={[Math.PI / 4, 0, 0]}>
         <mesh>
-          <torusGeometry args={[6.0, 0.05, 16, 64]} />
+          <torusGeometry args={[6.5, 0.06, 16, 64]} />
           <meshStandardMaterial color="#10B981" emissive="#10B981" emissiveIntensity={0.8} />
         </mesh>
       </group>
 
-      {/* Orbital Ring 3: Tilted -45 deg */}
       <group ref={ring3Ref} rotation={[-Math.PI / 4, Math.PI / 6, 0]}>
         <mesh>
-          <torusGeometry args={[6.8, 0.04, 16, 64]} />
+          <torusGeometry args={[7.4, 0.05, 16, 64]} />
           <meshStandardMaterial color="#8B5CF6" emissive="#8B5CF6" emissiveIntensity={0.7} />
         </mesh>
       </group>
 
       {/* 3D Floating Nexus Label */}
-      <Html position={[0, -5, 0]} center distanceFactor={28} pointerEvents="none">
+      <Html position={[0, -5.2, 0]} center distanceFactor={30} pointerEvents="none">
         <div className="flex flex-col items-center pointer-events-none select-none">
           <span className="text-[10px] font-mono tracking-widest text-[#10B981] bg-[#0B0F19]/80 px-2 py-0.5 rounded border border-[#10B981]/30 uppercase whitespace-nowrap">
             CENTRAL NEXUS (0,0,0)
-          </span>
-          <span className="text-[9px] font-mono text-[#94A3B8] mt-0.5">
-            Click to return to orbit
           </span>
         </div>
       </Html>
@@ -264,19 +199,164 @@ function CentralNexus({
 }
 
 // ----------------------------------------------------------------------------
-// Constellation Conduits (Light Beams connecting Nexus to Sectors)
+// Asteroid Belt Assembly
 // ----------------------------------------------------------------------------
-function ConstellationConduits({ sectors }: { sectors: Sector3DDef[] }) {
+function AsteroidBelt() {
+  const beltRef = useRef<THREE.Group>(null!);
+
+  useFrame((_, delta) => {
+    if (beltRef.current) {
+      beltRef.current.rotation.y += delta * 0.04;
+    }
+  });
+
+  return (
+    <group ref={beltRef}>
+      {STATIC_ASTEROIDS.map((ast, idx) => (
+        <mesh
+          key={idx}
+          position={ast.pos}
+          scale={ast.scale}
+          rotation={ast.rot}
+        >
+          <dodecahedronGeometry args={[1, 0]} />
+          <meshStandardMaterial
+            color="#334155"
+            roughness={0.9}
+            metalness={0.2}
+          />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
+// ----------------------------------------------------------------------------
+// Celestial Planet Landmark with Atmospheric Glow Shell
+// ----------------------------------------------------------------------------
+function CelestialPlanet({
+  planet,
+  isActive,
+  projectCount,
+  onSelect,
+}: {
+  planet: Sector3DDef;
+  isActive: boolean;
+  projectCount: number;
+  onSelect: (id: WorldId) => void;
+}) {
+  const groupRef = useRef<THREE.Group>(null!);
+  const sphereRef = useRef<THREE.Mesh>(null!);
+  const atmoRef = useRef<THREE.Mesh>(null!);
+  const [hovered, setHovered] = useState(false);
+
+  useFrame((state, delta) => {
+    if (sphereRef.current) {
+      sphereRef.current.rotation.y += delta * 0.15;
+    }
+    if (atmoRef.current) {
+      atmoRef.current.rotation.y -= delta * 0.08;
+    }
+  });
+
+  return (
+    <group
+      ref={groupRef}
+      position={planet.position}
+      onClick={(e) => {
+        e.stopPropagation();
+        onSelect(planet.id);
+      }}
+      onPointerOver={() => {
+        setHovered(true);
+        document.body.style.cursor = 'pointer';
+      }}
+      onPointerOut={() => {
+        setHovered(false);
+        document.body.style.cursor = 'auto';
+      }}
+    >
+      {/* Solid Planetary Core */}
+      <mesh ref={sphereRef}>
+        <sphereGeometry args={[planet.radius, 32, 32]} />
+        <meshStandardMaterial
+          color={planet.color}
+          emissive={planet.emissive}
+          emissiveIntensity={isActive ? 2.2 : hovered ? 1.6 : 0.8}
+          roughness={0.4}
+          metalness={0.6}
+        />
+      </mesh>
+
+      {/* Atmospheric Glow Shell */}
+      <mesh ref={atmoRef}>
+        <sphereGeometry args={[planet.radius * 1.15, 32, 32]} />
+        <meshBasicMaterial
+          color={planet.color}
+          transparent
+          opacity={isActive ? 0.35 : hovered ? 0.25 : 0.12}
+          blending={THREE.AdditiveBlending}
+          side={THREE.BackSide}
+        />
+      </mesh>
+
+      {/* Planetary Ring for Engineering and Creations */}
+      {(planet.id === 'engineering' || planet.id === 'creations') && (
+        <mesh rotation={[Math.PI / 3, 0, 0]}>
+          <ringGeometry args={[planet.radius * 1.4, planet.radius * 2.0, 48]} />
+          <meshBasicMaterial
+            color={planet.color}
+            transparent
+            opacity={0.3}
+            side={THREE.DoubleSide}
+          />
+        </mesh>
+      )}
+
+      {/* Local Point Light */}
+      <pointLight
+        color={planet.color}
+        intensity={isActive ? 25 : hovered ? 15 : 6}
+        distance={25}
+      />
+
+      {/* 3D Floating Name & Project Count Tag */}
+      <Html position={[0, -planet.radius - 1.2, 0]} center distanceFactor={30} pointerEvents="none">
+        <div
+          style={{
+            borderColor: planet.color,
+            boxShadow: isActive ? `0 0 16px ${planet.color}88` : undefined,
+          }}
+          className="flex items-center space-x-2 bg-[#0B0F19]/90 backdrop-blur-md px-3 py-1 rounded-full border text-xs font-mono font-bold whitespace-nowrap select-none"
+        >
+          <span
+            style={{ backgroundColor: planet.color }}
+            className="w-2 h-2 rounded-full inline-block"
+          />
+          <span style={{ color: '#F8FAFC' }}>{planet.title}</span>
+          <span
+            style={{ color: planet.color, borderColor: `${planet.color}44` }}
+            className="text-[10px] bg-[#1E293B]/60 px-1.5 py-0.2 rounded border font-mono ml-1"
+          >
+            {projectCount}
+          </span>
+        </div>
+      </Html>
+    </group>
+  );
+}
+
+// ----------------------------------------------------------------------------
+// Constellation Conduits (Light Beams connecting Nexus to Planets)
+// ----------------------------------------------------------------------------
+function ConstellationConduits() {
   return (
     <group>
-      {sectors.map((sector) => (
+      {PLANETS_3D.map((p) => (
         <Line
-          key={sector.id}
-          points={[
-            [0, 0, 0],
-            sector.position,
-          ]}
-          color={sector.color}
+          key={p.id}
+          points={[[0, 0, 0], p.position]}
+          color={p.color}
           transparent
           opacity={0.25}
           lineWidth={1}
@@ -287,214 +367,7 @@ function ConstellationConduits({ sectors }: { sectors: Sector3DDef[] }) {
 }
 
 // ----------------------------------------------------------------------------
-// Thematic Sector Landmark Component
-// Unique 3D geometry, lighting, hover effects, and interactive click trigger
-// ----------------------------------------------------------------------------
-function SectorLandmark({
-  sector,
-  isActive,
-  projectCount,
-  onSelect,
-}: {
-  sector: Sector3DDef;
-  isActive: boolean;
-  projectCount: number;
-  onSelect: (id: string) => void;
-}) {
-  const groupRef = useRef<THREE.Group>(null!);
-  const meshRef = useRef<THREE.Mesh>(null!);
-  const ringRef = useRef<THREE.Mesh>(null!);
-  const [hovered, setHovered] = useState(false);
-
-  useFrame((state) => {
-    const t = state.clock.getElapsedTime();
-
-    if (groupRef.current) {
-      // Gentle floating animation
-      groupRef.current.position.y =
-        sector.position[1] + Math.sin(t * 1.5 + sector.position[0]) * 0.4;
-    }
-
-    if (meshRef.current) {
-      meshRef.current.rotation.y = t * 0.4;
-      meshRef.current.rotation.x = t * 0.2;
-    }
-
-    if (ringRef.current) {
-      ringRef.current.rotation.z = -t * 0.6;
-    }
-  });
-
-  // Render sector-specific geometry
-  const renderGeometry = () => {
-    switch (sector.id) {
-      case 'core_systems':
-        // Layered Cybernetic Cube Monolith
-        return (
-          <mesh ref={meshRef}>
-            <boxGeometry args={[3.2, 3.2, 3.2]} />
-            <meshStandardMaterial
-              color={sector.color}
-              emissive={sector.emissive}
-              emissiveIntensity={isActive ? 2.2 : hovered ? 1.6 : 0.9}
-              wireframe={!isActive && !hovered}
-              roughness={0.3}
-              metalness={0.7}
-            />
-          </mesh>
-        );
-
-      case 'ai_intelligence':
-        // Geodesic Neural Sphere with Node Particles
-        return (
-          <mesh ref={meshRef}>
-            <icosahedronGeometry args={[2.4, 2]} />
-            <meshStandardMaterial
-              color={sector.color}
-              emissive={sector.emissive}
-              emissiveIntensity={isActive ? 2.4 : hovered ? 1.8 : 1.0}
-              wireframe
-              roughness={0.2}
-              metalness={0.8}
-            />
-          </mesh>
-        );
-
-      case 'engineering':
-        // Orbital Station Ring Array
-        return (
-          <mesh ref={meshRef}>
-            <octahedronGeometry args={[2.5, 0]} />
-            <meshStandardMaterial
-              color={sector.color}
-              emissive={sector.emissive}
-              emissiveIntensity={isActive ? 2.2 : hovered ? 1.6 : 0.8}
-              roughness={0.4}
-              metalness={0.6}
-            />
-          </mesh>
-        );
-
-      case 'creations':
-        // Crystalline Prism Cluster
-        return (
-          <mesh ref={meshRef}>
-            <coneGeometry args={[2.2, 4.5, 5]} />
-            <meshStandardMaterial
-              color={sector.color}
-              emissive={sector.emissive}
-              emissiveIntensity={isActive ? 2.3 : hovered ? 1.7 : 0.9}
-              roughness={0.2}
-              metalness={0.7}
-            />
-          </mesh>
-        );
-
-      case 'origins':
-        // Celestial Beacon Spire
-        return (
-          <mesh ref={meshRef}>
-            <cylinderGeometry args={[0.3, 1.8, 5, 8]} />
-            <meshStandardMaterial
-              color={sector.color}
-              emissive={sector.emissive}
-              emissiveIntensity={isActive ? 2.5 : hovered ? 1.9 : 1.0}
-              roughness={0.3}
-              metalness={0.8}
-            />
-          </mesh>
-        );
-
-      default:
-        return (
-          <mesh ref={meshRef}>
-            <sphereGeometry args={[2, 16, 16]} />
-            <meshStandardMaterial color={sector.color} />
-          </mesh>
-        );
-    }
-  };
-
-  return (
-    <group
-      ref={groupRef}
-      position={[sector.position[0], sector.position[1], sector.position[2]]}
-      onClick={(e) => {
-        e.stopPropagation();
-        onSelect(sector.id);
-      }}
-      onPointerOver={(e) => {
-        e.stopPropagation();
-        setHovered(true);
-        document.body.style.cursor = 'pointer';
-      }}
-      onPointerOut={() => {
-        setHovered(false);
-        document.body.style.cursor = 'auto';
-      }}
-    >
-      {/* Sector Main Geometry */}
-      {renderGeometry()}
-
-      {/* Orbiting Satellite Ring */}
-      <mesh ref={ringRef} rotation={[Math.PI / 3, 0, 0]}>
-        <torusGeometry args={[3.8, 0.05, 12, 48]} />
-        <meshStandardMaterial
-          color={sector.color}
-          emissive={sector.color}
-          emissiveIntensity={isActive ? 1.5 : hovered ? 1.0 : 0.4}
-        />
-      </mesh>
-
-      {/* Localized Point Light */}
-      <pointLight
-        color={sector.color}
-        intensity={isActive ? 25 : hovered ? 15 : 8}
-        distance={20}
-        decay={2}
-      />
-
-      {/* 3D Floating Sector Label */}
-      <Html position={[0, -3.8, 0]} center distanceFactor={30} pointerEvents="none">
-        <div
-          className={`flex flex-col items-center select-none transition-all duration-300 ${
-            isActive
-              ? 'scale-110'
-              : hovered
-              ? 'scale-105'
-              : 'scale-95 opacity-80'
-          }`}
-        >
-          <div
-            style={{
-              borderColor: sector.color,
-              boxShadow: isActive ? `0 0 16px ${sector.color}66` : undefined,
-            }}
-            className="flex items-center space-x-1.5 bg-[#0B0F19]/90 backdrop-blur-md px-3 py-1 rounded-full border text-xs font-mono font-bold whitespace-nowrap"
-          >
-            <span
-              style={{ backgroundColor: sector.color }}
-              className="w-2 h-2 rounded-full inline-block"
-            />
-            <span style={{ color: '#F8FAFC' }}>{sector.title}</span>
-            <span
-              style={{ color: sector.color, borderColor: `${sector.color}44` }}
-              className="text-[10px] bg-[#1E293B]/60 px-1.5 py-0.2 rounded border font-mono ml-1"
-            >
-              {projectCount}
-            </span>
-          </div>
-          <span className="text-[10px] font-mono text-[#94A3B8] mt-0.5 drop-shadow">
-            [{sector.position[0]}, {sector.position[1]}, {sector.position[2]}]
-          </span>
-        </div>
-      </Html>
-    </group>
-  );
-}
-
-// ----------------------------------------------------------------------------
-// Main 3D Universe Scene Graph
+// Master 3D Space Scene Graph
 // ----------------------------------------------------------------------------
 interface Universe3DSceneProps {
   projects: Project[];
@@ -509,7 +382,6 @@ export function Universe3DScene({
   onSelectSector,
   onResetNexus,
 }: Universe3DSceneProps) {
-  // Compute project count per sector
   const projectCounts = useMemo(() => {
     const map: Record<string, number> = {};
     for (const p of projects) {
@@ -522,53 +394,68 @@ export function Universe3DScene({
 
   return (
     <>
-      {/* Deep Space Background Stars */}
+      {/* Multi-Layer Starfield */}
+      {/* Layer 1: Distant Faint Stars */}
       <Stars
-        radius={140}
+        radius={240}
         depth={60}
-        count={6000}
-        factor={5}
+        count={5000}
+        factor={4}
+        saturation={0.2}
+        fade
+        speed={0.8}
+      />
+      {/* Layer 2: Mid-Range Bright Stars */}
+      <Stars
+        radius={120}
+        depth={40}
+        count={2000}
+        factor={6}
         saturation={0.5}
         fade
-        speed={1.2}
+        speed={1.4}
       />
+
+      {/* Volumetric Tinted Nebula Clouds */}
+      <mesh position={[40, 20, -50]}>
+        <sphereGeometry args={[35, 16, 16]} />
+        <meshBasicMaterial color="#06B6D4" transparent opacity={0.03} />
+      </mesh>
+      <mesh position={[-50, -30, -40]}>
+        <sphereGeometry args={[40, 16, 16]} />
+        <meshBasicMaterial color="#8B5CF6" transparent opacity={0.03} />
+      </mesh>
 
       {/* Ambient & Directional Lighting */}
       <ambientLight intensity={0.4} />
-      <directionalLight position={[20, 30, 20]} intensity={0.8} />
-      <directionalLight position={[-20, -20, -20]} intensity={0.3} color="#06B6D4" />
+      <directionalLight position={[30, 40, 20]} intensity={1.0} />
+      <directionalLight position={[-30, -30, -20]} intensity={0.4} color="#06B6D4" />
 
-      {/* Constellation Conduits connecting Nexus to Sectors */}
-      <ConstellationConduits sectors={SECTORS_3D} />
+      {/* Central Nexus Megastructure */}
+      <CentralNexus onClick={onResetNexus} />
 
-      {/* Central Nexus (Click to reset view) */}
-      <CentralNexus
-        onClick={onResetNexus}
-        isFocused={activeSectorId === null}
-      />
+      {/* Asteroid Belt */}
+      <AsteroidBelt />
 
-      {/* 5 Thematic Sector Landmarks */}
-      {SECTORS_3D.map((sector) => (
+      {/* Constellation Conduit Light Beams */}
+      <ConstellationConduits />
+
+      {/* 5 Celestial Planets */}
+      {PLANETS_3D.map((planet) => (
         <Float
-          key={sector.id}
-          speed={1.5}
-          rotationIntensity={0.2}
-          floatIntensity={0.4}
+          key={planet.id}
+          speed={1.2}
+          rotationIntensity={0.15}
+          floatIntensity={0.3}
         >
-          <SectorLandmark
-            sector={sector}
-            isActive={activeSectorId === sector.id}
-            projectCount={projectCounts[sector.id] || 0}
+          <CelestialPlanet
+            planet={planet}
+            isActive={activeSectorId === planet.id}
+            projectCount={projectCounts[planet.id] || 0}
             onSelect={onSelectSector}
           />
         </Float>
       ))}
-
-      {/* Camera Rig with Kinematic Damping */}
-      <CameraRig
-        activeSectorId={activeSectorId}
-        isNexusFocused={activeSectorId === null}
-      />
     </>
   );
 }

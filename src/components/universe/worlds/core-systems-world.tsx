@@ -2,14 +2,16 @@
 
 // ============================================================================
 // THE YACINEVERSE — World 1: Core Systems & Architecture
-// Interior environment: Floating obsidian architecture, server towers, data bridges
+// Cybernetic server monoliths, floating data bridges, emerald energy highways
 // ============================================================================
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useRef } from 'react';
 import * as THREE from 'three';
+import { useFrame } from '@react-three/fiber';
 import { WorldTerminal } from '../world-terminal';
 import type { InteractiveArtifact } from '../universe-types';
 import type { Project, Skill } from '@/types/database';
+import { getWorldArtifacts } from '../universe-artifacts';
 
 interface CoreSystemsWorldProps {
   projects: Project[];
@@ -26,47 +28,25 @@ export function CoreSystemsWorld({
   onActivateArtifact,
   onCloseArtifact,
 }: CoreSystemsWorldProps) {
-  // Find project and skill data
-  const chronosProject = projects.find((p) => p.slug === 'project-chronos') || projects[0];
-  const backendSkill = skills.find((s) => s.category.toLowerCase().includes('backend')) || skills[0];
+  const conduitRef = useRef<THREE.Mesh>(null!);
 
-  const artifacts: InteractiveArtifact[] = useMemo(() => {
-    const list: InteractiveArtifact[] = [];
-
-    if (chronosProject) {
-      list.push({
-        id: 'chronos-monolith',
-        type: 'project',
-        title: chronosProject.title,
-        subtitle: chronosProject.tagline,
-        position: [-6, 1.8, 0],
-        color: '#10B981',
-        data: chronosProject,
-      });
-    }
-
-    if (backendSkill) {
-      list.push({
-        id: 'backend-pillar',
-        type: 'skill',
-        title: backendSkill.name,
-        position: [6, 1.8, -2],
-        color: '#10B981',
-        data: backendSkill,
-      });
-    }
-
-    // Space Orbit Return Beacon
-    list.push({
-      id: 'exit-portal',
-      type: 'portal',
-      title: 'Space Orbit Gateway',
-      position: [0, 1.8, 14],
-      color: '#10B981',
+  const artifacts = useMemo(() => {
+    return getWorldArtifacts('core_systems', {
+      projects,
+      skills,
+      experiences: [],
+      credentials: [],
+      stories: [],
     });
+  }, [projects, skills]);
 
-    return list;
-  }, [chronosProject, backendSkill]);
+  useFrame((state) => {
+    const t = state.clock.getElapsedTime();
+    if (conduitRef.current) {
+      const mat = conduitRef.current.material as THREE.MeshBasicMaterial;
+      mat.opacity = 0.5 + Math.sin(t * 3) * 0.25;
+    }
+  });
 
   return (
     <group>
@@ -112,13 +92,25 @@ export function CoreSystemsWorld({
         </group>
       ))}
 
+      {/* Suspended Overhead Data Bridges */}
+      <group position={[0, 12, -6]}>
+        <mesh>
+          <boxGeometry args={[32, 0.4, 2.5]} />
+          <meshStandardMaterial color="#0A1E14" metalness={0.9} roughness={0.2} />
+        </mesh>
+        <mesh position={[0, -0.25, 0]}>
+          <planeGeometry args={[30, 0.3]} />
+          <meshBasicMaterial color="#10B981" />
+        </mesh>
+      </group>
+
       {/* Pulsing Central Energy Conduit Highway */}
-      <mesh position={[0, 0.06, 0]} rotation={[Math.PI / 2, 0, 0]}>
-        <planeGeometry args={[1.5, 28]} />
+      <mesh ref={conduitRef} position={[0, 0.06, 0]} rotation={[Math.PI / 2, 0, 0]}>
+        <planeGeometry args={[1.6, 28]} />
         <meshBasicMaterial color="#059669" transparent opacity={0.6} />
       </mesh>
 
-      {/* Exit Gateway Light Column */}
+      {/* Space Orbit Gateway Light Column */}
       <group position={[0, 0, 14]}>
         <mesh position={[0, 6, 0]}>
           <cylinderGeometry args={[1.8, 1.8, 12, 16, 1, true]} />

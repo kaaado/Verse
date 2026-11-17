@@ -2,14 +2,16 @@
 
 // ============================================================================
 // THE YACINEVERSE — World 5: Origins & Evolution
-// Interior environment: Cosmic observatory, timeline astrolabe, memory stelae
+// Astrolabe observatory, rose aurora sky, memory timeline stelae, Eternal Spire
 // ============================================================================
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useRef } from 'react';
 import * as THREE from 'three';
+import { useFrame } from '@react-three/fiber';
 import { WorldTerminal } from '../world-terminal';
 import type { InteractiveArtifact } from '../universe-types';
 import type { Story, Experience } from '@/types/database';
+import { getWorldArtifacts } from '../universe-artifacts';
 
 interface OriginsWorldProps {
   stories: Story[];
@@ -26,47 +28,25 @@ export function OriginsWorld({
   onActivateArtifact,
   onCloseArtifact,
 }: OriginsWorldProps) {
-  const story = stories[0];
-  const experience = experiences[0];
+  const armillaryRef = useRef<THREE.Group>(null!);
 
-  const artifacts: InteractiveArtifact[] = useMemo(() => {
-    const list: InteractiveArtifact[] = [];
-
-    if (story) {
-      list.push({
-        id: 'chronicle-archive',
-        type: 'story',
-        title: story.title,
-        subtitle: `Technical Chronicle • ${story.read_time_minutes} min read`,
-        position: [-6, 1.8, -1],
-        color: '#EC4899',
-        data: story,
-      });
-    }
-
-    if (experience) {
-      list.push({
-        id: 'career-stela',
-        type: 'experience',
-        title: `${experience.role} @ ${experience.organization}`,
-        subtitle: `Career Horizon • ${experience.start_date} – Present`,
-        position: [6, 1.8, -1],
-        color: '#EC4899',
-        data: experience,
-      });
-    }
-
-    // Space Orbit Return Beacon
-    list.push({
-      id: 'exit-portal',
-      type: 'portal',
-      title: 'Space Orbit Gateway',
-      position: [0, 1.8, 14],
-      color: '#EC4899',
+  const artifacts = useMemo(() => {
+    return getWorldArtifacts('origins', {
+      projects: [],
+      skills: [],
+      experiences,
+      credentials: [],
+      stories,
     });
+  }, [stories, experiences]);
 
-    return list;
-  }, [story, experience]);
+  useFrame((state) => {
+    const t = state.clock.getElapsedTime();
+    if (armillaryRef.current) {
+      armillaryRef.current.rotation.x = t * 0.3;
+      armillaryRef.current.rotation.y = t * 0.5;
+    }
+  });
 
   return (
     <group>
@@ -94,21 +74,33 @@ export function OriginsWorld({
       ))}
 
       {/* Central Eternal Beacon Spire */}
-      <group position={[0, 0, -8]}>
-        <mesh position={[0, 10, 0]}>
-          <cylinderGeometry args={[0.2, 1.2, 20, 8]} />
+      <group position={[0, 0, -10]}>
+        <mesh position={[0, 12, 0]}>
+          <cylinderGeometry args={[0.2, 1.4, 24, 8]} />
           <meshStandardMaterial
             color="#EC4899"
             emissive="#DB2777"
-            emissiveIntensity={1.8}
+            emissiveIntensity={2.0}
             metalness={0.9}
             roughness={0.1}
           />
         </mesh>
-        <pointLight position={[0, 16, 0]} color="#EC4899" intensity={25} distance={35} />
+        <pointLight position={[0, 20, 0]} color="#EC4899" intensity={30} distance={40} />
       </group>
 
-      {/* Exit Gateway Light Column */}
+      {/* Rotating Armillary Rings atop Spire */}
+      <group ref={armillaryRef} position={[0, 22, -10]}>
+        <mesh>
+          <torusGeometry args={[3.2, 0.08, 16, 48]} />
+          <meshBasicMaterial color="#F472B6" />
+        </mesh>
+        <mesh rotation={[Math.PI / 2, 0, 0]}>
+          <torusGeometry args={[3.6, 0.08, 16, 48]} />
+          <meshBasicMaterial color="#EC4899" />
+        </mesh>
+      </group>
+
+      {/* Space Orbit Gateway Light Column */}
       <group position={[0, 0, 14]}>
         <mesh position={[0, 6, 0]}>
           <cylinderGeometry args={[1.8, 1.8, 12, 16, 1, true]} />

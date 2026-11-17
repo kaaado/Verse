@@ -234,6 +234,30 @@ assert(rateLimitCode.includes('memoryStore'), 'In-memory fallback store active')
 assert(fs.existsSync(path.join(rootDir, 'src', 'proxy.ts')), 'src/proxy.ts exists and adheres to Next.js 16 convention');
 assert(!fs.existsSync(path.join(rootDir, 'src', 'middleware.ts')), 'Deprecated src/middleware.ts removed');
 
+// Test 13: Centralized Input Manager, Authoritative Audio Mixer & Artifact Sync
+console.log('\n[13] Centralized Input Manager & Authoritative Audio Architecture:');
+const inputMgrPath = path.join(rootDir, 'src', 'components', 'universe', 'input-manager.ts');
+assert(fs.existsSync(inputMgrPath), 'src/components/universe/input-manager.ts exists');
+const inputMgrCode = fs.readFileSync(inputMgrPath, 'utf8');
+assert(inputMgrCode.includes('ACTIVATION_COOLDOWN_MS'), '400ms activation cooldown implemented');
+assert(inputMgrCode.includes('e.repeat'), 'Auto-repeat key suppression implemented');
+assert(inputMgrCode.includes('setInteractionTarget'), 'Authoritative target registration present');
+assert(inputMgrCode.includes('triggerInteraction'), 'Authoritative action routing implemented');
+
+const artifactsPath = path.join(rootDir, 'src', 'components', 'universe', 'universe-artifacts.ts');
+assert(fs.existsSync(artifactsPath), 'src/components/universe/universe-artifacts.ts exists');
+const artifactsCode = fs.readFileSync(artifactsPath, 'utf8');
+assert(artifactsCode.includes('getWorldArtifacts'), 'Single source of truth getWorldArtifacts exported');
+
+const atmosphericEntryPath = path.join(rootDir, 'src', 'components', 'universe', 'cinematics', 'atmospheric-entry.tsx');
+assert(fs.existsSync(atmosphericEntryPath), 'atmospheric-entry.tsx exists');
+
+assert(audioCode.includes('masterGain'), 'Master gain audio bus implemented');
+assert(audioCode.includes('ambientGain'), 'Ambient gain audio bus implemented');
+assert(audioCode.includes('effectsGain'), 'Effects gain audio bus implemented');
+assert(audioCode.includes('sessionStorage'), 'Audio settings persisted in sessionStorage');
+assert(fpHudCode.includes('Audio Engine Mixer'), 'Authoritative Audio Mixer panel present in HUD');
+
 console.log(`\n=== VERIFICATION SUMMARY: ${passedTests}/${totalTests} TESTS PASSED ===\n`);
 
 if (passedTests === totalTests) {

@@ -9,7 +9,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { Project } from '@/types/database';
-import { SECTORS_3D } from './universe-3d-scene';
+import { SECTORS_3D, type Sector3DDef } from './universe-3d-scene';
 import {
   IconTerminal,
   IconCompass,
@@ -38,7 +38,7 @@ export function UniverseHUDOverlay({
 }: UniverseHUDOverlayProps) {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
 
-  const activeSector = SECTORS_3D.find((s) => s.id === activeSectorId) || null;
+  const activeSector = SECTORS_3D.find((s: Sector3DDef) => s.id === activeSectorId) || null;
   const sectorProjects = activeSectorId
     ? projects.filter((p) => p.sector === activeSectorId)
     : [];
@@ -105,7 +105,7 @@ export function UniverseHUDOverlay({
             </button>
 
             {/* Sector Jump Buttons */}
-            {SECTORS_3D.map((sector) => {
+            {SECTORS_3D.map((sector: Sector3DDef) => {
               const isSelected = activeSectorId === sector.id;
               return (
                 <button
@@ -163,7 +163,7 @@ export function UniverseHUDOverlay({
 
             {/* Sector Blips */}
             <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100">
-              {SECTORS_3D.map((s) => {
+              {SECTORS_3D.map((s: Sector3DDef) => {
                 // Map 3D positions [-25, 25] to 2D [10, 90]
                 const cx = 50 + (s.position[0] / 30) * 40;
                 const cy = 50 - (s.position[2] / 30) * 40;

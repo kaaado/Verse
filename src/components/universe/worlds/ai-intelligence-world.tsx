@@ -2,14 +2,16 @@
 
 // ============================================================================
 // THE YACINEVERSE — World 2: AI & Machine Intelligence
-// Interior environment: Geodesic observatory, neural synapse clusters, tensor grids
+// Geodesic neural biosphere, levitating tensor core, synaptic axons
 // ============================================================================
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useRef } from 'react';
 import * as THREE from 'three';
+import { useFrame } from '@react-three/fiber';
 import { WorldTerminal } from '../world-terminal';
 import type { InteractiveArtifact } from '../universe-types';
 import type { Project, Skill } from '@/types/database';
+import { getWorldArtifacts } from '../universe-artifacts';
 
 interface AIIntelligenceWorldProps {
   projects: Project[];
@@ -26,46 +28,31 @@ export function AIIntelligenceWorld({
   onActivateArtifact,
   onCloseArtifact,
 }: AIIntelligenceWorldProps) {
-  const hyperionProject = projects.find((p) => p.slug === 'project-hyperion') || projects[0];
-  const aiSkill = skills.find((s) => s.category.toLowerCase().includes('ai')) || skills[0];
+  const coreRef = useRef<THREE.Mesh>(null!);
+  const tensorRingRef = useRef<THREE.Mesh>(null!);
 
-  const artifacts: InteractiveArtifact[] = useMemo(() => {
-    const list: InteractiveArtifact[] = [];
-
-    if (hyperionProject) {
-      list.push({
-        id: 'hyperion-core',
-        type: 'project',
-        title: hyperionProject.title,
-        subtitle: hyperionProject.tagline,
-        position: [6, 1.8, 0],
-        color: '#06B6D4',
-        data: hyperionProject,
-      });
-    }
-
-    if (aiSkill) {
-      list.push({
-        id: 'ai-matrix-pillar',
-        type: 'skill',
-        title: aiSkill.name,
-        position: [-6, 1.8, -2],
-        color: '#06B6D4',
-        data: aiSkill,
-      });
-    }
-
-    // Space Orbit Return Beacon
-    list.push({
-      id: 'exit-portal',
-      type: 'portal',
-      title: 'Space Orbit Gateway',
-      position: [0, 1.8, 14],
-      color: '#06B6D4',
+  const artifacts = useMemo(() => {
+    return getWorldArtifacts('ai_intelligence', {
+      projects,
+      skills,
+      experiences: [],
+      credentials: [],
+      stories: [],
     });
+  }, [projects, skills]);
 
-    return list;
-  }, [hyperionProject, aiSkill]);
+  useFrame((state) => {
+    const t = state.clock.getElapsedTime();
+    if (coreRef.current) {
+      coreRef.current.rotation.x = t * 0.3;
+      coreRef.current.rotation.y = t * 0.5;
+      coreRef.current.position.y = 12 + Math.sin(t * 1.5) * 0.8;
+    }
+    if (tensorRingRef.current) {
+      tensorRingRef.current.rotation.z = -t * 0.6;
+      tensorRingRef.current.position.y = 12 + Math.sin(t * 1.5) * 0.8;
+    }
+  });
 
   return (
     <group>
@@ -103,9 +90,27 @@ export function AIIntelligenceWorld({
         </mesh>
       ))}
 
-      {/* Levitating Machine Intelligence Core in Background */}
-      <group position={[0, 12, -18]}>
-        <mesh>
+      {/* Synaptic Axon Columns around Platform */}
+      {[-16, -8, 8, 16].map((x, idx) => (
+        <group key={idx} position={[x, 5, -12]}>
+          <mesh>
+            <cylinderGeometry args={[0.3, 0.4, 10, 12]} />
+            <meshStandardMaterial color="#082F49" roughness={0.3} metalness={0.8} />
+          </mesh>
+          <mesh position={[0, 5, 0]}>
+            <sphereGeometry args={[0.7, 16, 16]} />
+            <meshStandardMaterial
+              color="#06B6D4"
+              emissive="#0891B2"
+              emissiveIntensity={1.5}
+            />
+          </mesh>
+        </group>
+      ))}
+
+      {/* Levitating Machine Intelligence Core & Tensor Ring */}
+      <group position={[0, 0, -18]}>
+        <mesh ref={coreRef} position={[0, 12, 0]}>
           <icosahedronGeometry args={[4, 1]} />
           <meshStandardMaterial
             color="#06B6D4"
@@ -114,10 +119,16 @@ export function AIIntelligenceWorld({
             wireframe
           />
         </mesh>
-        <pointLight color="#06B6D4" intensity={25} distance={30} />
+
+        <mesh ref={tensorRingRef} position={[0, 12, 0]}>
+          <torusGeometry args={[6.5, 0.12, 16, 48]} />
+          <meshBasicMaterial color="#06B6D4" transparent opacity={0.6} />
+        </mesh>
+
+        <pointLight position={[0, 12, 0]} color="#06B6D4" intensity={25} distance={30} />
       </group>
 
-      {/* Exit Gateway Light Column */}
+      {/* Space Orbit Gateway Light Column */}
       <group position={[0, 0, 14]}>
         <mesh position={[0, 6, 0]}>
           <cylinderGeometry args={[1.8, 1.8, 12, 16, 1, true]} />

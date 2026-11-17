@@ -1,8 +1,8 @@
 'use client';
 
 // ============================================================================
-// THE YACINEVERSE — First-Person Space Flight Controller
-// 6-DOF kinematic space flight with WASD, mouse-look, boost, and boundary physics
+// THE YACINEVERSE — Authoritative First-Person Flight Controller
+// Connected directly to CentralizedInputManager (0 event conflicts, 0 duplicate keys)
 // ============================================================================
 
 import { useEffect, useRef } from 'react';
@@ -10,123 +10,40 @@ import * as THREE from 'three';
 import { useFrame } from '@react-three/fiber';
 import { WORLDS_CONFIG, type WorldId } from '../universe-types';
 import { universeAudio } from '../universe-audio';
+import { inputManager } from '../input-manager';
 
 interface FlightControlsProps {
   enabled: boolean;
-  onApproachWorld: (worldId: WorldId | null) => void;
   onInitiateWarp: (worldId: WorldId) => void;
+  onApproachWorld?: (worldId: WorldId | null) => void;
   onCameraUpdate?: (pos: [number, number, number], rot: [number, number, number]) => void;
 }
 
 export function FlightControls({
   enabled,
-  onApproachWorld,
   onInitiateWarp,
+  onApproachWorld,
   onCameraUpdate,
 }: FlightControlsProps) {
-  // Flight Kinematics
   const velocity = useRef(new THREE.Vector3());
   const euler = useRef(new THREE.Euler(0, 0, 0, 'YXZ'));
   const isPointerLocked = useRef(false);
   const isMouseDown = useRef(false);
   const previousMouse = useRef({ x: 0, y: 0 });
 
-  // Key States
-  const keys = useRef<{
-    forward: boolean;
-    backward: boolean;
-    left: boolean;
-    right: boolean;
-    up: boolean;
-    down: boolean;
-    boost: boolean;
-    interact: boolean;
-  }>({
-    forward: false,
-    backward: false,
-    left: false,
-    right: false,
-    up: false,
-    down: false,
-    boost: false,
-    interact: false,
-  });
-
   const closestWorld = useRef<WorldId | null>(null);
 
   useEffect(() => {
     if (!enabled) return;
 
-    const handleKeyDown = (e: KeyboardEvent) => {
-      switch (e.code) {
-        case 'KeyW':
-        case 'ArrowUp':
-          keys.current.forward = true;
-          break;
-        case 'KeyS':
-        case 'ArrowDown':
-          keys.current.backward = true;
-          break;
-        case 'KeyA':
-        case 'ArrowLeft':
-          keys.current.left = true;
-          break;
-        case 'KeyD':
-        case 'ArrowRight':
-          keys.current.right = true;
-          break;
-        case 'Space':
-          keys.current.up = true;
-          break;
-        case 'KeyC':
-        case 'ControlLeft':
-        case 'ControlRight':
-          keys.current.down = true;
-          break;
-        case 'ShiftLeft':
-        case 'ShiftRight':
-          keys.current.boost = true;
-          break;
-        case 'KeyE':
-          if (closestWorld.current) {
-            onInitiateWarp(closestWorld.current);
-          }
-          break;
-      }
-    };
+    inputManager.init();
 
-    const handleKeyUp = (e: KeyboardEvent) => {
-      switch (e.code) {
-        case 'KeyW':
-        case 'ArrowUp':
-          keys.current.forward = false;
-          break;
-        case 'KeyS':
-        case 'ArrowDown':
-          keys.current.backward = false;
-          break;
-        case 'KeyA':
-        case 'ArrowLeft':
-          keys.current.left = false;
-          break;
-        case 'KeyD':
-        case 'ArrowRight':
-          keys.current.right = false;
-          break;
-        case 'Space':
-          keys.current.up = false;
-          break;
-        case 'KeyC':
-        case 'ControlLeft':
-        case 'ControlRight':
-          keys.current.down = false;
-          break;
-        case 'ShiftLeft':
-        case 'ShiftRight':
-          keys.current.boost = false;
-          break;
+    // Subscribe to Authoritative Interaction [E]
+    const unsubscribeInteraction = inputManager.onInteraction((target) => {
+      if (target.context === 'APPROACHING_PLANET' && target.id) {
+        onInitiateWarp(target.id as WorldId);
       }
-    };
+    });
 
     const handlePointerLockChange = () => {
       isPointerLocked.current = document.pointerLockElement !== null;
@@ -162,16 +79,13 @@ export function FlightControls({
       isMouseDown.current = false;
     };
 
-    window.addEventListener('keydown', handleKeyDown);
-    window.addEventListener('keyup', handleKeyUp);
     document.addEventListener('pointerlockchange', handlePointerLockChange);
     window.addEventListener('mousemove', handleMouseMove);
     window.addEventListener('mousedown', handleMouseDown);
     window.addEventListener('mouseup', handleMouseUp);
 
     return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-      window.removeEventListener('keyup', handleKeyUp);
+      unsubscribeInteraction();
       document.removeEventListener('pointerlockchange', handlePointerLockChange);
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mousedown', handleMouseDown);
@@ -185,34 +99,25 @@ export function FlightControls({
     // Apply orientation
     state.camera.quaternion.setFromEuler(euler.current);
 
-    // Movement Physics
-    const accelRate = keys.current.boost ? 55.0 : 25.0;
-    const maxSpeed = keys.current.boost ? 35.0 : 16.0;
-    const damping = Math.exp(-6.0 * delta); // Smooth velocity decay
+    // Query Centralized Input Manager
+    const { x, y, z, boost } = inputManager.getMovementVector();
 
-    const moveDirection = new THREE.Vector3();
-    if (keys.current.forward) moveDirection.z -= 1;
-    if (keys.current.backward) moveDirection.z += 1;
-    if (keys.current.left) moveDirection.x -= 1;
-    if (keys.current.right) moveDirection.x += 1;
-    if (keys.current.up) moveDirection.y += 1;
-    if (keys.current.down) moveDirection.y -= 1;
+    const accelRate = boost ? 55.0 : 25.0;
+    const maxSpeed = boost ? 36.0 : 16.0;
+    const damping = Math.exp(-6.0 * delta);
 
+    const moveDirection = new THREE.Vector3(x, y, z);
     if (moveDirection.lengthSq() > 0) {
       moveDirection.normalize();
       moveDirection.applyQuaternion(state.camera.quaternion);
       velocity.current.addScaledVector(moveDirection, accelRate * delta);
     }
 
-    // Apply speed clamp
     if (velocity.current.length() > maxSpeed) {
       velocity.current.setLength(maxSpeed);
     }
 
-    // Apply damping
     velocity.current.multiplyScalar(damping);
-
-    // Apply displacement to camera
     state.camera.position.addScaledVector(velocity.current, delta);
 
     // Soft Boundary Check (Radius R = 90 from origin)
@@ -240,7 +145,20 @@ export function FlightControls({
 
     if (detectedWorld !== closestWorld.current) {
       closestWorld.current = detectedWorld;
-      onApproachWorld(detectedWorld);
+      onApproachWorld?.(detectedWorld);
+      if (detectedWorld) {
+        const config = WORLDS_CONFIG[detectedWorld];
+        inputManager.setInteractionTarget({
+          context: 'APPROACHING_PLANET',
+          id: detectedWorld,
+          title: config.title,
+        });
+      } else {
+        const currentTarget = inputManager.getInteractionTarget();
+        if (currentTarget.context === 'APPROACHING_PLANET') {
+          inputManager.clearInteractionTarget();
+        }
+      }
     }
 
     if (onCameraUpdate) {

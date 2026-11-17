@@ -2,14 +2,16 @@
 
 // ============================================================================
 // THE YACINEVERSE — World 3: Engineering & Field Systems
-// Interior environment: Orbital research platform, steel catwalks, solar telemetry
+// Industrial orbital research platform, steel truss catwalks, telemetry array
 // ============================================================================
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useRef } from 'react';
 import * as THREE from 'three';
+import { useFrame } from '@react-three/fiber';
 import { WorldTerminal } from '../world-terminal';
 import type { InteractiveArtifact } from '../universe-types';
 import type { Skill } from '@/types/database';
+import { getWorldArtifacts } from '../universe-artifacts';
 
 interface EngineeringWorldProps {
   skills: Skill[];
@@ -24,42 +26,24 @@ export function EngineeringWorld({
   onActivateArtifact,
   onCloseArtifact,
 }: EngineeringWorldProps) {
-  const infraSkill = skills.find((s) => s.category.toLowerCase().includes('infra') || s.category.toLowerCase().includes('devops')) || skills[0];
+  const radarRef = useRef<THREE.Group>(null!);
 
-  const artifacts: InteractiveArtifact[] = useMemo(() => {
-    const list: InteractiveArtifact[] = [];
+  const artifacts = useMemo(() => {
+    return getWorldArtifacts('engineering', {
+      projects: [],
+      skills,
+      experiences: [],
+      credentials: [],
+      stories: [],
+    });
+  }, [skills]);
 
-    if (infraSkill) {
-      list.push({
-        id: 'telemetry-station',
-        type: 'skill',
-        title: infraSkill.name,
-        position: [-5, 1.8, -2],
-        color: '#F59E0B',
-        data: infraSkill,
-      });
+  useFrame((state) => {
+    const t = state.clock.getElapsedTime();
+    if (radarRef.current) {
+      radarRef.current.rotation.y = t * 0.4;
     }
-
-    list.push({
-      id: 'field-sync-artifact',
-      type: 'project',
-      title: 'Resilient Edge Mesh Network',
-      subtitle: 'Fault-Tolerant Offline Sync Protocol',
-      position: [5, 1.8, -2],
-      color: '#F59E0B',
-    });
-
-    // Space Orbit Return Beacon
-    list.push({
-      id: 'exit-portal',
-      type: 'portal',
-      title: 'Space Orbit Gateway',
-      position: [0, 1.8, 14],
-      color: '#F59E0B',
-    });
-
-    return list;
-  }, [infraSkill]);
+  });
 
   return (
     <group>
@@ -78,7 +62,13 @@ export function EngineeringWorld({
         />
       </mesh>
 
-      {/* Industrial Perimeter Truss Posts */}
+      {/* Perimeter Hazard Border Ring */}
+      <mesh position={[0, 0.05, 0]} rotation={[Math.PI / 2, 0, 0]}>
+        <ringGeometry args={[24.8, 25.5, 48]} />
+        <meshBasicMaterial color="#F59E0B" transparent opacity={0.6} />
+      </mesh>
+
+      {/* Industrial Perimeter Truss Posts & Flashing Hazard Beacons */}
       {[-16, -8, 8, 16].map((x, idx) => (
         <group key={idx} position={[x, 5, -12]}>
           <mesh>
@@ -86,22 +76,35 @@ export function EngineeringWorld({
             <meshStandardMaterial color="#2B210C" metalness={0.8} />
           </mesh>
           <mesh position={[0, 4.8, 0]}>
-            <sphereGeometry args={[0.6, 16, 16]} />
+            <sphereGeometry args={[0.5, 16, 16]} />
             <meshBasicMaterial color="#F59E0B" />
           </mesh>
           <pointLight position={[0, 4.8, 0]} color="#F59E0B" intensity={6} distance={10} />
         </group>
       ))}
 
+      {/* Rotating Telemetry Radar Dish Array */}
+      <group ref={radarRef} position={[0, 14, -16]}>
+        <mesh rotation={[0.4, 0, 0]}>
+          <cylinderGeometry args={[4.5, 0.2, 1.2, 24, 1, true]} />
+          <meshStandardMaterial color="#374151" metalness={0.9} roughness={0.2} side={THREE.DoubleSide} />
+        </mesh>
+        <mesh position={[0, 0, 1]}>
+          <cylinderGeometry args={[0.1, 0.1, 3, 8]} />
+          <meshBasicMaterial color="#F59E0B" />
+        </mesh>
+        <pointLight color="#F59E0B" intensity={12} distance={20} />
+      </group>
+
       {/* Edge Solar Panels in Background */}
-      {[-14, 14].map((x, idx) => (
-        <mesh key={idx} position={[x, 10, -20]} rotation={[0.4, idx === 0 ? 0.3 : -0.3, 0]}>
+      {[-15, 15].map((x, idx) => (
+        <mesh key={idx} position={[x, 9, -20]} rotation={[0.4, idx === 0 ? 0.3 : -0.3, 0]}>
           <boxGeometry args={[12, 6, 0.2]} />
           <meshStandardMaterial color="#0E1A2B" metalness={0.9} roughness={0.1} />
         </mesh>
       ))}
 
-      {/* Exit Gateway Light Column */}
+      {/* Space Orbit Gateway Light Column */}
       <group position={[0, 0, 14]}>
         <mesh position={[0, 6, 0]}>
           <cylinderGeometry args={[1.8, 1.8, 12, 16, 1, true]} />

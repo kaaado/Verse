@@ -16,7 +16,7 @@ import {
 } from './universe-types';
 import { universeAudio } from './universe-audio';
 import { AwakeningIntro } from './cinematics/awakening-intro';
-import { WarpTunnel } from './cinematics/warp-tunnel';
+import { AtmosphericEntry } from './cinematics/atmospheric-entry';
 import { FlightControls } from './controllers/flight-controls';
 import { WorldControls } from './controllers/world-controls';
 import { FirstPersonHUD } from './first-person-hud';
@@ -26,6 +26,7 @@ import { AIIntelligenceWorld } from './worlds/ai-intelligence-world';
 import { EngineeringWorld } from './worlds/engineering-world';
 import { CreationsWorld } from './worlds/creations-world';
 import { OriginsWorld } from './worlds/origins-world';
+import { getWorldArtifacts } from './universe-artifacts';
 
 const FiberCanvas = dynamic(
   () => import('@react-three/fiber').then((mod) => mod.Canvas),
@@ -46,6 +47,7 @@ export function UniverseExperience({
   projects,
   skills,
   experiences,
+  credentials,
   stories,
   onToggle2D,
   is2DAvailable,
@@ -80,11 +82,12 @@ export function UniverseExperience({
   const [nearArtifact, setNearArtifact] = useState<InteractiveArtifact | null>(null);
   const [activeArtifact, setActiveArtifact] = useState<InteractiveArtifact | null>(null);
   const [nearExitPortal, setNearExitPortal] = useState(false);
-  const [isMuted, setIsMuted] = useState(false);
+  const [isMuted, setIsMuted] = useState(() => universeAudio.getSettings().masterMuted);
 
   const handleLaunchComplete = () => {
     setHasLaunched(true);
     setCurrentState('SPACE_FLIGHT');
+    universeAudio.setWorldAmbience(null);
     try {
       sessionStorage.setItem('yacineverse_intro_seen', 'true');
     } catch {}
@@ -93,13 +96,14 @@ export function UniverseExperience({
   const handleSkipIntro = () => {
     setHasLaunched(true);
     setCurrentState('SPACE_FLIGHT');
+    universeAudio.setWorldAmbience(null);
     try {
       sessionStorage.setItem('yacineverse_intro_seen', 'true');
     } catch {}
   };
 
   const handleToggleMute = () => {
-    const nextMute = universeAudio.toggleMute();
+    const nextMute = universeAudio.toggleMasterMute();
     setIsMuted(nextMute);
   };
 
@@ -124,51 +128,31 @@ export function UniverseExperience({
     if (warpTarget === 'space') {
       setActiveWorld(null);
       setApproachingWorld(null);
+      universeAudio.setWorldAmbience(null);
       setCurrentState('SPACE_FLIGHT');
     } else {
       setActiveWorld(warpTarget);
       setDiscoveredWorlds((prev) => new Set([...prev, warpTarget]));
+      universeAudio.setWorldAmbience(warpTarget);
       setCurrentState('WORLD_EXPLORATION');
     }
   }, [warpTarget]);
 
-  // World artifacts list for the active world
+  // World artifacts list for the active world derived authoritatively
   const currentWorldArtifacts = useMemo(() => {
-    // In-memory artifacts list matching the active world
-    const list: InteractiveArtifact[] = [];
-    if (activeWorld === 'core_systems') {
-      const p = projects.find((proj) => proj.slug === 'project-chronos') || projects[0];
-      if (p) {
-        list.push({
-          id: 'chronos-monolith',
-          type: 'project',
-          title: p.title,
-          subtitle: p.tagline,
-          position: [-6, 1.8, 0],
-          color: '#10B981',
-          data: p,
-        });
-      }
-    } else if (activeWorld === 'ai_intelligence') {
-      const p = projects.find((proj) => proj.slug === 'project-hyperion') || projects[0];
-      if (p) {
-        list.push({
-          id: 'hyperion-core',
-          type: 'project',
-          title: p.title,
-          subtitle: p.tagline,
-          position: [6, 1.8, 0],
-          color: '#06B6D4',
-          data: p,
-        });
-      }
-    }
-    return list;
-  }, [activeWorld, projects]);
+    if (!activeWorld) return [];
+    return getWorldArtifacts(activeWorld, {
+      projects,
+      skills,
+      experiences,
+      credentials,
+      stories,
+    });
+  }, [activeWorld, projects, skills, experiences, credentials, stories]);
 
   return (
     <div className="relative w-full h-[calc(100vh-4rem)] bg-[#0B0F19] overflow-hidden select-none">
-      {/* Scene A1 Awakening & Scene A2 Launch Intro */}
+      {/* Pure Visual Awakening Intro */}
       {!hasLaunched && currentState === 'INTRO' && (
         <AwakeningIntro
           onLaunchComplete={handleLaunchComplete}
@@ -205,9 +189,9 @@ export function UniverseExperience({
           </>
         )}
 
-        {/* 2. Hyperspace Warp Transition */}
+        {/* 2. Planetary Atmospheric Entry & Space Return Transition */}
         {currentState === 'WARP_TRANSITION' && (
-          <WarpTunnel
+          <AtmosphericEntry
             targetWorld={warpTarget}
             onArrival={handleWarpArrival}
           />

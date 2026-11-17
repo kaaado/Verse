@@ -1,29 +1,34 @@
 'use client';
 
 // ============================================================================
-// THE YACINEVERSE — First-Person Interior World Controller
-// Surface and platform exploration with artifact proximity detection & interaction
+// THE YACINEVERSE — Authoritative First-Person World Ground Controller
+// Connected directly to CentralizedInputManager (0 event conflicts, 0 duplicate keys)
 // ============================================================================
 
 import { useEffect, useRef } from 'react';
 import * as THREE from 'three';
 import { useFrame } from '@react-three/fiber';
 import type { InteractiveArtifact } from '../universe-types';
+import { inputManager } from '../input-manager';
 
 interface WorldControlsProps {
   enabled: boolean;
   artifacts: InteractiveArtifact[];
-  onNearArtifact: (artifact: InteractiveArtifact | null) => void;
-  onActivateArtifact: (artifact: InteractiveArtifact) => void;
-  onNearExitPortal: (isNear: boolean) => void;
+  activeArtifact?: InteractiveArtifact | null;
+  onActivateArtifact?: (artifact: InteractiveArtifact) => void;
+  onCloseArtifact?: () => void;
+  onNearArtifact?: (artifact: InteractiveArtifact | null) => void;
+  onNearExitPortal?: (near: boolean) => void;
   onReturnToSpace: () => void;
 }
 
 export function WorldControls({
   enabled,
   artifacts,
-  onNearArtifact,
+  activeArtifact,
   onActivateArtifact,
+  onCloseArtifact,
+  onNearArtifact,
   onNearExitPortal,
   onReturnToSpace,
 }: WorldControlsProps) {
@@ -34,78 +39,29 @@ export function WorldControls({
   const previousMouse = useRef({ x: 0, y: 0 });
   const hasInitializedPos = useRef(false);
 
-  const activeNearArtifact = useRef<InteractiveArtifact | null>(null);
-  const nearExit = useRef(false);
-
-  const keys = useRef({
-    forward: false,
-    backward: false,
-    left: false,
-    right: false,
-    boost: false,
-  });
-
   useEffect(() => {
     if (!enabled) return;
 
+    inputManager.init();
     hasInitializedPos.current = false;
 
-    const handleKeyDown = (e: KeyboardEvent) => {
-      switch (e.code) {
-        case 'KeyW':
-        case 'ArrowUp':
-          keys.current.forward = true;
-          break;
-        case 'KeyS':
-        case 'ArrowDown':
-          keys.current.backward = true;
-          break;
-        case 'KeyA':
-        case 'ArrowLeft':
-          keys.current.left = true;
-          break;
-        case 'KeyD':
-        case 'ArrowRight':
-          keys.current.right = true;
-          break;
-        case 'ShiftLeft':
-        case 'ShiftRight':
-          keys.current.boost = true;
-          break;
-        case 'KeyE':
-          if (nearExit.current) {
-            onReturnToSpace();
-          } else if (activeNearArtifact.current) {
-            onActivateArtifact(activeNearArtifact.current);
-          }
-          break;
+    // Subscribe to Authoritative Interaction [E]
+    const unsubscribeInteraction = inputManager.onInteraction((target) => {
+      if (target.context === 'TERMINAL_OPEN') {
+        onCloseArtifact?.();
+      } else if (target.context === 'NEAR_GATEWAY') {
+        onReturnToSpace();
+      } else if (target.context === 'NEAR_ARTIFACT' && target.payload) {
+        onActivateArtifact?.(target.payload as InteractiveArtifact);
       }
-    };
+    });
 
-    const handleKeyUp = (e: KeyboardEvent) => {
-      switch (e.code) {
-        case 'KeyW':
-        case 'ArrowUp':
-          keys.current.forward = false;
-          break;
-        case 'KeyS':
-        case 'ArrowDown':
-          keys.current.backward = false;
-          break;
-        case 'KeyA':
-        case 'ArrowLeft':
-          keys.current.left = false;
-          break;
-        case 'KeyD':
-        case 'ArrowRight':
-          keys.current.right = false;
-          break;
-        case 'ShiftLeft':
-        case 'ShiftRight':
-          keys.current.boost = false;
-          break;
+    // Subscribe to [Escape]
+    const unsubscribeEscape = inputManager.onEscape(() => {
+      if (activeArtifact) {
+        onCloseArtifact?.();
       }
-    };
+    });
 
     const handlePointerLockChange = () => {
       isPointerLocked.current = document.pointerLockElement !== null;
@@ -141,22 +97,31 @@ export function WorldControls({
       isMouseDown.current = false;
     };
 
-    window.addEventListener('keydown', handleKeyDown);
-    window.addEventListener('keyup', handleKeyUp);
     document.addEventListener('pointerlockchange', handlePointerLockChange);
     window.addEventListener('mousemove', handleMouseMove);
     window.addEventListener('mousedown', handleMouseDown);
     window.addEventListener('mouseup', handleMouseUp);
 
     return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-      window.removeEventListener('keyup', handleKeyUp);
+      unsubscribeInteraction();
+      unsubscribeEscape();
       document.removeEventListener('pointerlockchange', handlePointerLockChange);
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mousedown', handleMouseDown);
       window.removeEventListener('mouseup', handleMouseUp);
     };
-  }, [enabled, onActivateArtifact, onReturnToSpace]);
+  }, [enabled, activeArtifact, onActivateArtifact, onCloseArtifact, onReturnToSpace]);
+
+  // Synchronize active terminal with input target
+  useEffect(() => {
+    if (activeArtifact) {
+      inputManager.setInteractionTarget({
+        context: 'TERMINAL_OPEN',
+        id: activeArtifact.id,
+        title: activeArtifact.title,
+      });
+    }
+  }, [activeArtifact]);
 
   useFrame((state, delta) => {
     if (!enabled) return;
@@ -171,16 +136,16 @@ export function WorldControls({
     // Apply orientation
     state.camera.quaternion.setFromEuler(euler.current);
 
-    // Walking speed
-    const walkSpeed = keys.current.boost ? 14.0 : 8.0;
+    // If terminal is open, freeze player movement
+    if (activeArtifact) return;
+
+    // Query Centralized Input Manager
+    const { x, z, boost } = inputManager.getMovementVector();
+
+    const walkSpeed = boost ? 14.0 : 8.0;
     const damping = Math.exp(-9.0 * delta);
 
-    const moveDir = new THREE.Vector3();
-    if (keys.current.forward) moveDir.z -= 1;
-    if (keys.current.backward) moveDir.z += 1;
-    if (keys.current.left) moveDir.x -= 1;
-    if (keys.current.right) moveDir.x += 1;
-
+    const moveDir = new THREE.Vector3(x, 0, z);
     if (moveDir.lengthSq() > 0) {
       moveDir.normalize();
       moveDir.applyAxisAngle(new THREE.Vector3(0, 1, 0), euler.current.y);
@@ -203,14 +168,21 @@ export function WorldControls({
       state.camera.position.setZ(Math.sin(angle) * 28);
     }
 
-    // Check distance to Exit Portal (situated at [0, 0, 14])
+    // Check distance to Exit Gateway (situated at [0, 1.8, 14])
     const exitPos = new THREE.Vector3(0, 1.8, 14);
     const distToExit = state.camera.position.distanceTo(exitPos);
-    const isNowNearExit = distToExit < 4.5;
-    if (isNowNearExit !== nearExit.current) {
-      nearExit.current = isNowNearExit;
-      onNearExitPortal(isNowNearExit);
+
+    if (distToExit < 4.5) {
+      onNearExitPortal?.(true);
+      onNearArtifact?.(null);
+      inputManager.setInteractionTarget({
+        context: 'NEAR_GATEWAY',
+        title: 'Return to Space Orbit',
+      });
+      return;
     }
+
+    onNearExitPortal?.(false);
 
     // Check distance to artifacts
     let closestArtifact: InteractiveArtifact | null = null;
@@ -225,9 +197,20 @@ export function WorldControls({
       }
     }
 
-    if (closestArtifact !== activeNearArtifact.current) {
-      activeNearArtifact.current = closestArtifact;
-      onNearArtifact(closestArtifact);
+    onNearArtifact?.(closestArtifact);
+
+    if (closestArtifact) {
+      inputManager.setInteractionTarget({
+        context: 'NEAR_ARTIFACT',
+        id: closestArtifact.id,
+        title: closestArtifact.title,
+        payload: closestArtifact,
+      });
+    } else {
+      const currentTarget = inputManager.getInteractionTarget();
+      if (currentTarget.context === 'NEAR_ARTIFACT' || currentTarget.context === 'NEAR_GATEWAY') {
+        inputManager.clearInteractionTarget();
+      }
     }
   });
 
