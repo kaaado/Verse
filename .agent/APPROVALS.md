@@ -21,8 +21,8 @@ This registry records all formal Product Owner decisions, authorized project pha
 | Stage | Name | Target Outcome | Approval Gate Requirement | Status |
 |---|---|---|---|:---:|
 | **Stage 00** | **Discovery & Workspace Organization** | Baseline verification, portfolio audit, skill inventory, management tree, adapted governance | Owner reviews Stage 0 report and approves readiness to define product | `COMPLETED` |
-| **Stage 01** | **Product Definition & Approval** | Complete `docs/Product.md` specification, UX journeys, dynamic content model | Owner approves consolidated `docs/Product.md` | `IN_PROGRESS` |
-| **Stage 02** | **Technical Architecture & Engineering Design** | Next.js architecture, Supabase schema & RLS matrix, storage, security | Owner approves architecture specification | `NOT_STARTED` |
+| **Stage 01** | **Product Definition & Approval** | Complete `docs/Product.md` specification, UX journeys, dynamic content model | Owner approves consolidated `docs/Product.md` | `REVIEW_REQUIRED` |
+| **Stage 02** | **Technical Architecture & Engineering Design** | Next.js architecture, Supabase schema & RLS matrix, storage, security | Owner approves architecture specification | `REVIEW_REQUIRED` |
 | **Stage 03** | **Experience, Design System & Prototyping** | Creative direction, spatial design, Creator Studio design, interactive prototypes | Owner approves visual direction and prototypes | `NOT_STARTED` |
 | **Stage 04** | **Implementation** | Feature-complete platform, Creator Studio, public universe, motion & 3D | Three-Face implementation sign-off & test evidence | `NOT_STARTED` |
 | **Stage 05** | **Verification, Release & Handover** | Full QA, security audit, CWV validation, operational handover | Owner authorizes production release | `NOT_STARTED` |
@@ -38,4 +38,5 @@ This registry records all formal Product Owner decisions, authorized project pha
 | **2026-11-17** | Governance Model | Adopt and adapt Three-Face Autonomous Engineering Standard with strict approval gates. | Initial Product Brief Section 1.4 | `APPROVED` | Product Owner |
 | **2026-11-17** | Stage 00 Authorization | Workspace initialization, portfolio audit, governance adaptation, and roadmap tree creation authorized. | Master Agent Prompt Stage 0 | `APPROVED` | Product Owner |
 | **2026-11-17** | Stage 00 Acceptance | Owner authorized governance refactoring, documentation restructuring, and Stage 01 activation. | Execution Prompt Stage 01 | `APPROVED` | Product Owner |
+| **2026-11-17** | Stage 02 Authorization | Technical architecture and engineering design documentation authorized. No implementation. | Execution Prompt Stage 02 | `APPROVED` | Product Owner |
 | **2026-11-17** | Restructuring & Stage 01 | Move `product-management/` → `docs/`, move `Product.md` → `docs/Product.md`, and execute Stage 01 Product Definition. | Execution Prompt Stage 01 | `APPROVED` | Product Owner |
