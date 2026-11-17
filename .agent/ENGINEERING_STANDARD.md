@@ -83,6 +83,6 @@ $$\text{Inspect} \longrightarrow \text{Baseline} \longrightarrow \text{Three-Fac
 
 Under this protocol, the following areas are **STRICTLY PROTECTED**:
 - The historical portfolio codebase (`../Portofolio/`) remains read-only for audit and extraction. Never modify it.
-- Root `Product.md` is the single authoritative source of truth.
-- Product-management hierarchy (`product-management/stage-XX/...`) follows the strict three-file Markdown rule (`Product.md`, `readme.md`, `report.md`).
+- `docs/Product.md` is the single authoritative source of truth.
+- Product-management hierarchy (`docs/stage-XX/...`) follows the strict three-file Markdown rule (`docs/Product.md`, `readme.md`, `report.md`).
 - Production deployments and external infrastructure provisioning remain prohibited without explicit PO sign-off.

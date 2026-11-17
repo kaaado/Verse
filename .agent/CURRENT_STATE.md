@@ -1,10 +1,11 @@
 # Current State — THE YACINEVERSE
 
-**Active Lifecycle Stage:** Stage 00 — Discovery & Workspace Organization  
-**Stage Status:** `IN_PROGRESS` (Submitting for Owner Review)  
+**Active Lifecycle Stage:** Stage 01 — Product Definition & Approval  
+**Stage Status:** `IN_PROGRESS` (Actively executing under Product Owner authorization)  
+**Prior Stage:** Stage 00 (Discovery & Workspace Organization) — `COMPLETED`  
 **Governance Standard:** Permanent Three-Face Autonomous Engineering Standard  
 **Workspace Path:** `W:\Document\Verse`  
-**Git Remote Target:** `https://github.com/kaaado/Verse.git`  
+**Git Remote Target:** `https://github.com/kaaado/Verse.git` (branch: `main`)  
 **Last Updated:** 2026-11-17  
 
 ---
@@ -22,16 +23,15 @@
 
 ---
 
-## 2. Active Stage Deliverables
+## 2. Active Lifecycle Deliverables
 
 | Deliverable | Status | Location | Evidence |
 |---|:---:|---|---|
-| **Adapted Governance** | `COMPLETED` | `.agent/` | Full Three-Face rules, Next.js/Supabase standards adapted |
-| **Historical Source Audit** | `COMPLETED` | `product-management/stage-00-discovery/phase-01-...` | Codebase, dependencies, assets, and git history audited |
-| **Content & Asset Inventory** | `COMPLETED` | `product-management/stage-00-discovery/phase-01-...` | 17 projects, 4 certificates, media assets cataloged |
-| **Product Specification** | `COMPLETED` | Root `Product.md` | Comprehensive source of truth initialized |
-| **Management Hierarchy** | `COMPLETED` | `product-management/stage-00` to `stage-05` | Complete Stage → Phase → Task tree initialized with `readme.md` & `report.md` |
-| **Stage 00 Final Report** | `COMPLETED` | `product-management/stage-00-discovery/report.md` | Full discovery synthesis & Three-Face review package |
+| **Permanent Governance** | `COMPLETED` | `.agent/` | Fully refactored, zero legacy contamination, Three-Face codified |
+| **Documentation Tree** | `COMPLETED` | `docs/` | Restructured under `docs/` with `docs/Product.md` and Stages 00–05 |
+| **Stage 00 Discovery** | `COMPLETED` | `docs/stage-00-discovery/` | Full discovery synthesis, portfolio audit, and evidence reports |
+| **Product Specification** | `IN_PROGRESS` | `docs/Product.md` | Authoritative product specification updated for Stage 01 |
+| **Stage 01 Execution** | `IN_PROGRESS` | `docs/stage-01-product-approval/` | Product strategy, experience/info architecture, functional requirements |
 
 ---
 
@@ -41,4 +41,4 @@
 - NPM dependency installation and project scaffolding remain **PROHIBITED** until Stage 04.
 - Supabase database provisioning remains **PROHIBITED** until Stage 02/04.
 - Historical portfolio repository (`../Portofolio/`) remains **READ-ONLY** and protected.
-- Advancing to Stage 01 requires **EXPLICIT PRODUCT OWNER APPROVAL**.
+- Advancing to Stage 02 requires **EXPLICIT PRODUCT OWNER APPROVAL**.
