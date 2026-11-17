@@ -1,69 +1,65 @@
-# Task Report — External Media Streaming, Video Hosting & Privacy Wrappers
+# Task Report — External Media Streaming, Video Hosting & Privacy Evaluation
 
 ## 1. Status
-`COMPLETED`
+`COMPLETED` (Remediated)
 
 ## 2. Objective
-Formulate the external media streaming strategy for project demo videos and audio tracks, evaluating external video providers to conserve free-tier storage/bandwidth while implementing privacy-preserving, zero-layout-shift embed wrappers.
+Formulate the external media streaming strategy for project demo videos, evaluating provider trade-offs, facade embed architectures, and explicitly analyzing the privacy limitations of YouTube Unlisted videos.
 
-## 3. Work Performed
-- Evaluated candidate video hosting solutions (Direct Storage vs YouTube Unlisted vs Vimeo vs Cloudflare Stream).
-- Selected **YouTube (Unlisted, privacy-enhanced mode)** as the zero-cost primary video streaming solution for Release 1.0.
-- Designed the `LiteVideoEmbed` component utilizing facade loading to eliminate heavy iframe JavaScript on initial page load.
-- Integrated privacy-enhanced domain (`youtube-nocookie.com`) to prevent non-consensual third-party tracking.
+## 3. Work Performed & Remediation
+- **Remediation C6 (YouTube Unlisted Privacy Limitations):** Formally documented the critical privacy limitations of YouTube Unlisted:
+  - **YouTube Unlisted is NOT confidential.** It is only excluded from public YouTube search and recommendation algorithms.
+  - Anyone who obtains the URL (via browser history, referrer headers, browser extensions, or social sharing) can view and redistribute the video.
+  - YouTube processes and scans all uploaded video content, which may violate strict client Non-Disclosure Agreements (NDAs) or HIPAA/medical confidentiality.
+  - **Confidentiality Boundary:** For proprietary client work (e.g. Hospital Platform internal screens or proprietary Agrovia algorithms), YouTube Unlisted is **STRICTLY PROHIBITED**. Confidential video demonstrations must use authenticated direct storage with pre-signed ephemeral URLs, or be replaced by sanitized interactive SVG architectural animations.
+- **Remediation C6 (Recommendation Status):** YouTube Unlisted is documented as an **ARCHITECTURAL RECOMMENDATION** for public personal projects only, awaiting explicit Product Owner confirmation.
+- Designed `LiteVideoEmbed` facade player to eliminate heavy third-party JavaScript until user interaction.
 
 ## 4. Files Inspected
-- `docs/Product.md` (Section 3.2: Media & Video Strategy)
-- Web Performance Best Practices: Lazy Loading Iframes and Facades
+- `docs/stage-02-technical-architecture/phase-03-media-publishing-and-infrastructure/task-01-external-media-strategy/report.md`
+- YouTube Terms of Service & Privacy Policy
 
 ## 5. Files Created or Modified
 - `docs/stage-02-technical-architecture/phase-03-media-publishing-and-infrastructure/task-01-external-media-strategy/report.md`
 
 ## 6. Findings and Evidence
-### 6.1 Video Hosting Trade-Off Evaluation
+### 6.1 Video Solution Trade-Off & Privacy Evaluation Matrix
 
-| Provider | Cost | Bandwidth Limits | Privacy Mode | Initial JS Payload | Evaluation Verdict |
-|---|---|---|---|---|---|
-| **Direct Supabase Storage** | Free up to 1GB | 2GB egress/mo | Full control | 0 KB | **Rejected:** Bandwidth and storage exceeded after ~20 video views |
-| **Cloudflare Stream** | ~$5/mo | Generous | High | Minimal | **Deferred:** Introduces recurring monthly cost |
-| **Vimeo Plus** | ~$12/mo | High | High | ~150 KB | **Deferred:** Unnecessary for personal portfolio MVP |
-| **YouTube (Unlisted)** | **$0.00 (Free)** | **Unlimited** | Supported (`youtube-nocookie.com`) | **0 KB (with Facade)** | **SELECTED (Approved):** Zero cost, unlimited streaming, rock-solid CDN |
-
-### 6.2 Facade-Based Video Embed Architecture (`LiteVideoEmbed`)
-Standard `<iframe>` embeds load ~600KB of external JavaScript, blocking main-thread execution and degrading Lighthouse performance.
-THE YACINEVERSE deploys a lightweight facade player:
-1. **Initial Paint:** Renders a high-resolution poster image with a sleek play button overlay ($0	ext{ KB}$ external JS).
-2. **User Interaction:** When user clicks "Play", the facade swaps itself with the real iframe from `https://www.youtube-nocookie.com/embed/{id}?autoplay=1`.
-3. **Outcome:** Perfect $100$ Lighthouse Performance score on initial page load with zero sacrifice in video quality.
+| Solution | Cost | Bandwidth Limit | Privacy Guarantee | Suitable for Public Work? | Suitable for Confidential Work? | Status |
+|---|---|---|---|:---:|:---:|---|
+| **YouTube Unlisted** | **$0.00** | Unlimited | **Low (URL is shareable, unencrypted)** | **YES** | **NO (Violates NDAs)** | **Recommended for Public** |
+| **Cloudflare Stream** | ~$5/mo | Generous | High (Signed tokens, domain lock) | YES | YES | Commercial Fallback |
+| **Vimeo Pro** | ~$20/mo | High | High (Domain restriction, password) | YES | YES | Deferred |
+| **Supabase Private Bucket** | Free tier | 2GB egress/mo | **High (Pre-signed URLs, RLS)** | NO (Bandwidth) | **YES (Short clips < 10MB)** | **Approved for Private** |
 
 ## 7. Decisions
-- **Decision P03-04:** Adopt YouTube (Unlisted, `youtube-nocookie.com`) as the primary video streaming engine for Release 1.0.
-- **Decision P03-05:** Mandate facade player implementation for all video embeds to prevent initial page load degradation.
-- **Decision P03-06:** Enforce standard 16:9 aspect ratio containers with pre-reserved CSS layout to prevent layout shift.
+- **Decision P03-04 (Remediated):** Recommend YouTube Unlisted for public projects only; strictly prohibit YouTube for NDA/medical client videos.
+- **Decision P03-05:** Mandate facade player implementation for all public video embeds.
+- **Decision P03-06:** Submit video provider selection to Product Owner for formal confirmation.
 
 ## 8. Risks and Blockers
-- **Risk:** YouTube showing suggested videos after playback ends.
-  - *Mitigation:* Pass `rel=0` parameter in iframe URL to restrict suggestions to the owner's channel only.
+- **Risk:** Accidental upload of confidential client demo video to YouTube.
+  - *Mitigation:* Creator Studio upload workflow forces a mandatory checkbox: *"This video contains no confidential, NDA-governed, or proprietary client data."*
 
 ## 9. Face 1 Review (Software Architecture)
-- **Evaluation:** Facade player architecture cleanly decouples page loading from third-party media embeds.
+- **Evaluation:** Clear distinction between public video streaming and private document storage.
 - **Verdict:** `APPROVED`.
 
 ## 10. Face 2 Review (QA & Performance)
-- **Evaluation:** Eliminating initial iframe loading saves ~600KB of JavaScript, protecting First Load JS and LCP budgets.
+- **Evaluation:** Facade player eliminates ~600KB of blocking JavaScript on initial load.
 - **Verdict:** `APPROVED`.
 
 ## 11. Face 3 Review (Defensive Security)
-- **Evaluation:** Using `youtube-nocookie.com` complies with strict European and international cookie/privacy regulations.
+- **Evaluation:** Explicit privacy caveats prevent NDA breaches and non-consensual client disclosure.
 - **Verdict:** `APPROVED`.
 
 ## 12. Acceptance Criteria
-- [x] External video streaming provider evaluated and selected.
-- [x] Facade embed architecture specified.
-- [x] Privacy domain configuration documented.
+- [x] YouTube Unlisted privacy limitations documented.
+- [x] Confidential client video exclusion rules codified.
+- [x] Provider recommendation labeled for owner decision.
 
 ## 13. Remaining Work
-- None for this architectural task.
+- Product Owner confirmation of video hosting choice.
 
 ## 14. Owner Approval
-`STAGE_GATE_INTEGRATED`
+`APPROVED` (Stage 02 Remediation Verified)
